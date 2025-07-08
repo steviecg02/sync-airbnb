@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from config import LOG_LEVEL, DEBUG, get_scrape_day, engine
+from config import DEBUG, LOG_LEVEL, SCRAPE_DAY, WINDOW_START, WINDOW_END, WINDOW_SIZE, engine
 from db.metrics import insert_chart_query_rows, insert_chart_summary_rows, insert_list_of_metrics_rows
 from pollers.airbnb import AirbnbMetricPoller
 from utils.logger import setup_logging
@@ -9,12 +9,6 @@ from utils.logger import setup_logging
 # --- Setup logging ---
 setup_logging(LOG_LEVEL)
 logger = logging.getLogger(__name__)
-
-# --- Config ---
-SCRAPE_DAY = get_scrape_day()
-WINDOW_START = SCRAPE_DAY - timedelta(days=14)
-WINDOW_END = SCRAPE_DAY + timedelta(days=180)
-WINDOW_SIZE = 7
 
 # What metrics to query (you control this)
 METRIC_QUERIES = {

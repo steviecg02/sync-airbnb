@@ -47,6 +47,9 @@ AIRBNB_COOKIE=your_session_cookie
 X_CLIENT_VERSION=...
 X_CLIENT_REQUEST_ID=...
 X_AIRBNB_CLIENT_TRACE_ID=...
+WINDOW_START_DAYS_AGO=...
+WINDOW_END_DAYS_AHEAD=...
+WINDOW_SIZE=...
 ```
 
 3. **Run the poller**
@@ -57,32 +60,12 @@ python main.py
 
 ---
 
-## ⚙️ Configuration
-
-| Variable             | Purpose                                |
-|----------------------|----------------------------------------|
-| `.env` present       | Automatically sets `LOG_LEVEL=DEBUG`   |
-| `ENV=production`     | Skips `.env` loading                   |
-| `TEST_LISTING_ID`    | (optional) Poll a single listing       |
-| `LIMIT`              | (optional) Limit number of listings    |
-
----
-
 ## 🧠 Architecture Principles
 
 - No hardcoded offsets — everything aligns to Airbnb’s +2 day UI logic
 - Clean separation between polling, flattening, and output
 - Debug-safe: you can inspect payloads and responses without breaking production logic
 - Extendable: add new pollers, flatteners, DB writers without touching `main.py`
-
----
-
-## 🧼 Example Usage (Dev Testing)
-
-```bash
-# Pull one listing and log payloads/responses
-TEST_LISTING_ID=745515... LOG_LEVEL=DEBUG python main.py
-```
 
 ---
 
@@ -96,7 +79,6 @@ TEST_LISTING_ID=745515... LOG_LEVEL=DEBUG python main.py
 
 ## 📣 TODO
 
-- [ ] Write to Postgres
 - [ ] Add CLI flags
 - [ ] Enable containerized cron job
 - [ ] Add flattener coverage tests

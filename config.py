@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, timedelta
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
@@ -46,8 +46,12 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
-def get_scrape_day() -> date:
-    return date.today()
+# --- Polling window configuration (in Airbnb UI-relative format) ---
+SCRAPE_DAY = date.today()
+WINDOW_START = SCRAPE_DAY - timedelta(days=int(os.getenv("WINDOW_START_DAYS_AGO", 180)))
+WINDOW_END   = SCRAPE_DAY + timedelta(days=int(os.getenv("WINDOW_END_DAYS_AHEAD", 180)))
+WINDOW_SIZE  = int(os.getenv("WINDOW_SIZE", 28))
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:

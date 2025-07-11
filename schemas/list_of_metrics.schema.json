@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ListOfMetricsQueryResponse",
+  "type": "object",
+  "required": ["timeseries_rows"],
+  "properties": {
+    "timeseries_rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric_name": { "type": ["string", "null"] },
+          "label": { "type": ["string", "null"] },
+          "value": { "type": ["number", "string", "null"] },
+          "value_string": { "type": ["string", "null"] },
+          "value_type": { "type": ["string", "null"] }
+        },
+        "required": ["metric_name", "value"]
+      }
+    }
+  }
+}

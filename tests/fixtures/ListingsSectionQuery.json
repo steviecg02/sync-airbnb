@@ -1,0 +1,213 @@
+{
+  "data": {
+    "porygon": {
+      "__typename": "porygonQuery",
+      "getPerformanceComponents": {
+        "__typename": "porygonGetPerformanceComponentsResponse",
+        "components": [
+          {
+            "__typename": "porygonPPivotListingsSection",
+            "title": "Listing overview",
+            "subtitle": "Compare 5-star ratings by listing, and we\u2019ll show you if ratings have changed since the previous month.",
+            "ratingSortBySelectors": [
+              {
+                "__typename": "porygonPRatingSortBySelector",
+                "label": "Lowest",
+                "sortOrder": "ASC",
+                "isActive": true
+              },
+              {
+                "__typename": "porygonPRatingSortBySelector",
+                "label": "Highest",
+                "sortOrder": "DESC",
+                "isActive": false
+              }
+            ],
+            "tableHeaders": ["Listing name", "Change", "Rate"],
+            "tableRows": [
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "999161464035752799",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/miso/Hosting-999161464035752799/original/35bb8a53-2a1e-46a4-b130-b7a262ad1887.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.0
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": null,
+                  "valueChangeType": null,
+                  "valueString": "-",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": null,
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "Thoughtfully Designed and Fully Equipped",
+                "internalName": "510 Schuyler Street Apt 1",
+                "summary": "Nestled in Syracuse's safe and sought-after Tipperary Hill, this beautifully restored 1900 house combines old-world charm with modern comforts. Ideal for adults, friends, contractors, and business travelers, it's minutes from all destinations, including SU and all hospitals. A short walk to many food and beverage spots. Enjoy this charming sanctuary with upscale design, a cozy enclosed porch, deck, fireplace, elegant bedrooms, dedicated office/laundry, and a gourmet kitchen. Your ideal retreat."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "999835283157936885",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/miso/Hosting-999835283157936885/original/a105ed00-092b-47ef-9888-fe93d7c10054.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.0
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": null,
+                  "valueChangeType": null,
+                  "valueString": "-",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": null,
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "Two apartments! Double the space and amenities",
+                "internalName": "510 Schuyler Street",
+                "summary": "Nestled in Syracuse's safe and sought-after Tipperary Hill, this beautifully restored 1900 house combines old-world charm with modern comforts. Ideal for adults, friends, contractors, and business travelers, it's minutes from all destinations, including hospitals. A short walk to many food and beverage spots. Enjoy this charming sanctuary with upscale design, a cozy enclosed porch, deck, fireplace, elegant bedrooms, dedicated office/laundry, and a gourmet kitchen. Your ideal retreat."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "999266413556193243",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/miso/Hosting-999266413556193243/original/9861ef47-b152-4a71-9b38-d73e6807a1c6.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.0
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": null,
+                  "valueChangeType": null,
+                  "valueString": "-",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": null,
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "Charming Extended Stay Haven in Safe/Vibrant Area",
+                "internalName": "510 Schuyler Street Apt 2",
+                "summary": "Nestled in Syracuse's safe and sought-after Tipperary Hill, this beautifully restored 1900 house combines old-world charm with modern comforts. Ideal for adults, friends, contractors, and business travelers, it's minutes from all destinations, including SU and all hospitals. A short walk to many food and beverage spots. Enjoy this charming sanctuary with upscale design, a cozy enclosed porch, deck, fireplace, elegant bedrooms, dedicated office/laundry, and a gourmet kitchen. Your ideal retreat."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "1192066365893342558",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/prohost-api/Hosting-1192066365893342558/original/9942b074-7e3f-40c4-901c-e122cb1074da.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.25
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": -0.44999999999999996
+                  },
+                  "valueChangeType": "PERCENTAGE",
+                  "valueString": "25.0%",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": "-45.0%",
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "GRP HQ: Sleeps 16, Dual Kitchen/LR/DR, Central Loc",
+                "internalName": "316-18 S Wilbur",
+                "summary": "Spacious 6BR home in Syracuse\u2019s vibrant Tipperary Hill neighborhood. Sleeps up to 16 guests\u2014perfect for big groups who want to stay connected without sacrificing space. Each floor has its own open-concept living room, dining area, and full kitchen. Walk to bars, restaurants, parks, and the zoo. Just a 5-minute drive to Destiny USA, museums, Syracuse University, and sports venues. A roomy, well-equipped home base for family getaways, group trips, or extended stays."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "1187242582569223539",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/prohost-api/Hosting-1187242582569223539/original/4bfe7a87-37c1-4728-92be-37a37bb3ffc8.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.7096774193548387
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.42396313364055305
+                  },
+                  "valueChangeType": "PERCENTAGE",
+                  "valueString": "71.0%",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": "42.4%",
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "Sleek Space: Open & Airy, Close to Key Spots",
+                "internalName": "318 S Wilbur",
+                "summary": "Spacious 3BR flat with single-floor living on the second floor of a Victorian duplex in Syracuse\u2019s Tipperary Hill. Enjoy an open-concept layout, full kitchen, custom dining area, front porch, and a dedicated work space. Steps from bars, restaurants, parks, and the zoo. Centrally located with easy access to the mall, museums, sports venues, and Syracuse University\u2014all within a 5-minute drive. A roomy, well-equipped home base."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "1187196788815240779",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/prohost-api/Hosting-1187196788815240779/original/b83c00f8-a761-41a7-b466-6ed2e771cfa7.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.7419354838709677
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.24193548387096775
+                  },
+                  "valueChangeType": "PERCENTAGE",
+                  "valueString": "74.2%",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": "24.2%",
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "June Promo | 2BR w/ Parking, Walk to Zoo + Bars",
+                "internalName": "316 S Wilbur",
+                "summary": "Spacious 2BR flat with single-floor living in Syracuse\u2019s Tipperary Hill. Enjoy an open-concept layout, full kitchen, in-unit laundry, front and back porches, driveway parking for 5\u20136 cars, and a dedicated work space. The primary bedroom includes a king bed and crib. Steps from bars, restaurants, parks, and the zoo. Centrally located with easy access to the mall, museums, sports venues, and Syracuse University\u2014all within a 5-minute drive. A roomy, well-equipped home base."
+              },
+              {
+                "__typename": "porygonPListingMetric",
+                "id": "745515258634591476",
+                "thumbnailUrl": "https://a0.muscache.com/im/pictures/prohost-api/Hosting-745515258634591476/original/55ee6e33-0b09-4e03-bc20-55fe8a501207.jpeg?aki_policy=small",
+                "metricUnit": {
+                  "__typename": "porygonPMetricUnit",
+                  "value": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.8947368421052632
+                  },
+                  "valueType": "PERCENTAGE",
+                  "valueChange": {
+                    "__typename": "porygonDoubleWrapper",
+                    "doubleValue": 0.20242914979757087
+                  },
+                  "valueChangeType": "PERCENTAGE",
+                  "valueString": "89.5%",
+                  "currency": null,
+                  "label": null,
+                  "valueChangeString": "20.2%",
+                  "metricName": "occupancy_rate"
+                },
+                "listingName": "GmRm/Rcade | Wk2Food&Drink | 1stFl B&B | 1-StepAcc",
+                "internalName": "211 N Wilbur",
+                "summary": "Welcome to your ultimate home away from home! Fire up some friendly competition in the game room/arcade, relax on the deck, and unwind in thoughtfully designed spaces. With one-step entry and a first-floor bedroom and bath, accessibility is a breeze. Centrally located near restaurants and bars, many within walking distance. Explore nearby attractions like the mall, zoo, parks, museums, colleges, and sports venues\u2014all just a 5-minute drive away."
+              }
+            ],
+            "totalCount": 7,
+            "resultsCount": 7,
+            "componentName": "PIVOT_LISTINGS_SECTION"
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "traceId": "ewvA8uWBttPIUmp7uxoKNg=="
+  }
+}

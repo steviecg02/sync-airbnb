@@ -1,0 +1,51 @@
+{
+  "data": {
+    "porygon": {
+      "__typename": "porygonQuery",
+      "getPerformanceComponents": {
+        "__typename": "porygonGetPerformanceComponentsResponse",
+        "components": [
+          {
+            "__typename": "porygonPListOfMetricsSection",
+            "metrics": [
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonLongWrapper",
+                  "longValue": "460"
+                },
+                "valueType": "NUMBER",
+                "valueChange": null,
+                "valueChangeType": "NUMBER",
+                "valueString": "460",
+                "currency": null,
+                "label": "Total page views",
+                "valueChangeString": null,
+                "metricName": "p3_impressions"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonLongWrapper",
+                  "longValue": "8166"
+                },
+                "valueType": "NUMBER",
+                "valueChange": null,
+                "valueChangeType": "NUMBER",
+                "valueString": "8166",
+                "currency": null,
+                "label": "Total first-page search impressions",
+                "valueChangeString": null,
+                "metricName": "p2_impressions"
+              }
+            ],
+            "componentName": "LIST_OF_METRICS_SECTION"
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "traceId": "-c9-H3LkbiwrC4bBwDDR6g=="
+  }
+}

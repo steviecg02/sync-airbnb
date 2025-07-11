@@ -1,18 +1,27 @@
-# Airbnb Metrics Poller
+# sync-airbnb
 
-A modular pipeline for polling Airbnb's internal GraphQL API to collect listing performance metrics — cleanly structured for maintainability, testing, and future expansion.
+A production-grade data pipeline for extracting, normalizing, and storing Airbnb insights via private GraphQL endpoints.
+
+While the initial focus is on performance metrics (e.g. conversion rate, visibility, page views), the system is architected to support additional data types—such as reservations, payouts, listing content, guest messages, and reviews—via the same polling and ingestion framework.
+
+Built for extensibility, testability, and deployment in modern environments like Render, Docker, or your own cron scheduler.
 
 ---
 
-## 🔧 What It Does
+## ✅ What This Does
 
-This project:
+This system:
 
-- Fetches your Airbnb listing IDs
-- Pulls **search + booking metrics** (e.g. conversion rate, impressions) from Airbnb's private APIs
-- Supports both `ListOfMetricsQuery` and `ChartQuery`
-- Normalizes the results into structured rows
-- (Coming soon) Inserts into a Postgres database
+- Authenticates with Airbnb using session cookies and custom headers
+- Pulls:
+  - **Listing metadata** via `ListingsSectionQuery`
+  - **Conversion metrics** via `ChartQuery` (e.g. impressions, conversion rate)
+  - **Visibility metrics** via `ListOfMetricsQuery` (e.g. CTR, page views)
+- Aligns query windows to **Sunday–Saturday weeks**
+- Respects Airbnb’s 180-day offset limit (+2-day adjustment)
+- Normalizes raw JSON responses into structured rows
+- Inserts data into a **Postgres + TimescaleDB schema**
+- (Optional) Runs as a **daily cron job** in Docker
 
 ---
 
@@ -20,65 +29,75 @@ This project:
 
 ```
 .
-├── main.py              # Orchestration entrypoint
-├── config.py            # Env vars, API headers, scrape day logic
-├── utils/               # Logger setup, small helpers
-├── pollers/             # Calls Airbnb APIs (listings, metrics)
-├── payloads/            # GraphQL query builders
-├── flatteners/          # Extracts data from Airbnb JSON into clean rows
-├── db/                  # [WIP] Postgres schema & inserts
-└── tests/               # [Optional] Unit tests
+├── pollers/              # Entry points (main.py) and orchestration logic
+├── services/             # Role-specific orchestration (e.g. insights poller)
+├── utils/                # Date logic, logging, sync helpers
+├── network/              # HTTP client and Airbnb headers
+├── payloads/             # GraphQL query payload builders
+├── flatteners/           # Converts raw Airbnb responses into clean rows
+├── db/                   # SQLAlchemy models + inserts
+├── schemas/              # JSON schema validation (in progress)
+├── tests/                # Unit + integration tests
+├── config.py             # Central settings: DB URL, log level, dry run
+├── Dockerfile            # Image for deployment
+├── Makefile              # Developer commands
+└── requirements.txt      # Python dependencies
 ```
 
 ---
 
-## 🚀 Getting Started
-
-1. **Install dependencies**
+## 🛠 How to Run
 
 ```bash
-pip install -r requirements.txt
+# 1. Install dependencies
+make install-dev
+
+# 2. Set required environment variables in .env
+cp .env.example .env
+
+# 3. Run the poller
+python -m pollers.insights
 ```
 
-2. **Create a `.env` file** (only if not running in production)
+---
 
-```
-AIRBNB_COOKIE=your_session_cookie
-X_CLIENT_VERSION=...
-X_CLIENT_REQUEST_ID=...
-X_AIRBNB_CLIENT_TRACE_ID=...
-WINDOW_START_DAYS_AGO=...
-WINDOW_END_DAYS_AHEAD=...
-WINDOW_SIZE=...
-```
-
-3. **Run the poller**
+## 🧪 Tests
 
 ```bash
-python main.py
+make test           # Run all tests
+make lint           # Ruff lint
+make format         # Black formatting
+make clean          # Clear .pyc, .pytest_cache, .ruff_cache, etc
+```
+
+> Tests use mocking to avoid hitting the live Airbnb API.
+
+---
+
+## 🐳 Docker (e.g. for Render)
+
+```Dockerfile
+CMD ["python", "-m", "pollers.insights"]
 ```
 
 ---
 
-## 🧠 Architecture Principles
+## ⚠️ Still In Progress
 
-- No hardcoded offsets — everything aligns to Airbnb’s +2 day UI logic
-- Clean separation between polling, flattening, and output
-- Debug-safe: you can inspect payloads and responses without breaking production logic
-- Extendable: add new pollers, flatteners, DB writers without touching `main.py`
-
----
-
-## 📌 Notes
-
-- This project reverse-engineers Airbnb's internal metrics dashboard.
-- The data is only available to hosts logged into their own Airbnb account.
-- Use responsibly. This code is for educational and internal automation purposes.
+- [ ] JSON Schema validation for all flattener outputs
+- [ ] OpenAPI documentation for upcoming API service
+- [ ] Proper dry-run guard in services (used for CI or first-time testing)
+- [ ] First-run detection (e.g. when to backfill vs increment)
+- [ ] Multi-account support (via host_id or external config)
 
 ---
 
-## 📣 TODO
+## 🧠 Dev Notes
 
-- [ ] Add CLI flags
-- [ ] Enable containerized cron job
-- [ ] Add flattener coverage tests
+- All Airbnb GraphQL metrics use +2 day offset for `relativeDsStart` and `relativeDsEnd`
+- `ChartQuery` = weekly windows (28 days)
+- `ListOfMetricsQuery` = daily snapshots (7-day lookback to 180-day forward)
+- Use `AirbnbSync.parse_all()` to get 3 tables:
+  - `chart_query`
+  - `chart_summary`
+  - `list_of_metrics`

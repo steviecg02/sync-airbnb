@@ -1,0 +1,765 @@
+{
+  "data": {
+    "porygon": {
+      "__typename": "porygonQuery",
+      "getPerformanceComponents": {
+        "__typename": "porygonGetPerformanceComponentsResponse",
+        "components": [
+          {
+            "__typename": "porygonPPivotChartSection",
+            "title": "Overall conversion rate",
+            "subtitle": "Compare",
+            "comparisonTypeSelectors": [
+              {
+                "__typename": "porygonPComparisonTypeSelector",
+                "label": "Over time",
+                "type": "YOY",
+                "isActive": false
+              },
+              {
+                "__typename": "porygonPComparisonTypeSelector",
+                "label": "Similar listings",
+                "type": "MARKET",
+                "isActive": true
+              }
+            ],
+            "metricLineCharts": [
+              {
+                "__typename": "porygonPMetricLineChart",
+                "dataPoints": [
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-12",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-13",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-14",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002583979328165375
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.26%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-15",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0024813895781637717
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.25%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-16",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002127659574468085
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.21%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-17",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0021691973969631237
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.22%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-18",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002070393374741201
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.21%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-19",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-20",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-21",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-22",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-23",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-24",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-25",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-26",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.006535947712418301
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.65%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-27",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.005076142131979695
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.51%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-28",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-29",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-30",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-31",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-01",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-02",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-03",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-04",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-05",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-06",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.00%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-07",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0035971223021582736
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.36%",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-08",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0037593984962406013
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.38%",
+                    "label": "Your listings"
+                  }
+                ],
+                "label": "Your performance",
+                "granularity": "DAY"
+              },
+              {
+                "__typename": "porygonPMetricLineChart",
+                "dataPoints": [
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-12",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0018480492813141684
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.18%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-13",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0017423499945551564
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.17%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-14",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0019352757767981937
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-15",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0018376391741433359
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.18%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-16",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.00221752903907075
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.22%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-17",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0023004174831728723
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.23%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-18",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.00230843696477772
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.23%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-19",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0021695895859699874
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.22%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-20",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.001931483175764969
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-21",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0019238558120696638
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-22",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0018198362147406734
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.18%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-23",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0015520861864329407
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.16%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-24",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0018866500641461022
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-25",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0020890845333134374
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.21%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-26",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.001988510826336721
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.20%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-27",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0021238938053097347
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.21%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-28",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.001915061394615298
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-29",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0024746906636670418
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.25%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-30",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002671511006625347
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.27%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-31",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002468265162200282
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.25%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-01",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002002076227198576
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.20%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-02",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002088078967350038
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.21%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-03",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0017325017325017325
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.17%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-04",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0018640908320623623
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.19%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-05",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.002178649237472767
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.22%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-06",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0017407161803713528
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.17%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-07",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0023179040528201167
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.23%",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-08",
+                    "value": {
+                      "__typename": "porygonDoubleWrapper",
+                      "doubleValue": 0.0028343402700082045
+                    },
+                    "valueType": "PERCENTAGE",
+                    "valueString": "0.28%",
+                    "label": "Similar listings"
+                  }
+                ],
+                "label": "Similar listings",
+                "granularity": "DAY"
+              }
+            ],
+            "description": "The overall conversion rate for selected listings is 0.10% lower than similar listings in the area.",
+            "link": {
+              "__typename": "porygonPLink",
+              "url": "https://www.airbnb.com/help/article/2652?locale=en",
+              "label": "Learn how we compare listings"
+            },
+            "componentName": "PIVOT_CHART_SECTION",
+            "primaryMetric": {
+              "__typename": "porygonPMetricUnit",
+              "value": {
+                "__typename": "porygonDoubleWrapper",
+                "doubleValue": 0.0011021307861866275
+              },
+              "valueType": "PERCENTAGE",
+              "valueChange": {
+                "__typename": "porygonDoubleWrapper",
+                "doubleValue": -0.0009774753618734951
+              },
+              "valueChangeType": "PERCENTAGE",
+              "valueString": "0.11%",
+              "currency": null,
+              "label": "Overall conversion rate",
+              "valueChangeString": "-0.10%",
+              "metricName": "conversion_rate"
+            },
+            "secondaryMetrics": [
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.6994221185452232
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "69.9%",
+                "currency": null,
+                "label": "First-page search impression rate",
+                "valueChangeString": null,
+                "metricName": "p2_impressions_first_page_rate"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.05633112907176096
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "5.63%",
+                "currency": null,
+                "label": "Search-to-listing conversion",
+                "valueChangeString": null,
+                "metricName": "search_conversion_rate"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.01956521739130435
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "1.96%",
+                "currency": null,
+                "label": "Listing-to-booking conversion",
+                "valueChangeString": null,
+                "metricName": "listing_conversion_rate"
+              }
+            ],
+            "minPoint": {
+              "__typename": "porygonPDataPoint",
+              "ds": "2025-07-10",
+              "value": {
+                "__typename": "porygonDoubleWrapper",
+                "doubleValue": 0.0
+              },
+              "valueType": "PERCENTAGE",
+              "valueString": "0.00%",
+              "label": null
+            },
+            "maxPoint": {
+              "__typename": "porygonPDataPoint",
+              "ds": "2025-07-10",
+              "value": {
+                "__typename": "porygonDoubleWrapper",
+                "doubleValue": 0.1
+              },
+              "valueType": "PERCENTAGE",
+              "valueString": "10.00%",
+              "label": null
+            },
+            "emptyState": {
+              "__typename": "porygonPEmptyState",
+              "actionUrl": null,
+              "message": "Your overall conversion rate will show here within 48 hours of your first booking."
+            }
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "traceId": "WKmWcyQqNGCUZN3rg8qv0w=="
+  }
+}

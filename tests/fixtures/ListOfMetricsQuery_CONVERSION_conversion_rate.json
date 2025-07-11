@@ -1,0 +1,81 @@
+{
+  "data": {
+    "porygon": {
+      "__typename": "porygonQuery",
+      "getPerformanceComponents": {
+        "__typename": "porygonGetPerformanceComponentsResponse",
+        "components": [
+          {
+            "__typename": "porygonPListOfMetricsSection",
+            "metrics": [
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.0011021307861866275
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "0.11%",
+                "currency": null,
+                "label": "Overall conversion rate",
+                "valueChangeString": null,
+                "metricName": "conversion_rate"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.6994221185452232
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "69.9%",
+                "currency": null,
+                "label": "First-page search impression rate",
+                "valueChangeString": null,
+                "metricName": "p2_impressions_first_page_rate"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.05633112907176096
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "5.63%",
+                "currency": null,
+                "label": "Search-to-listing conversion",
+                "valueChangeString": null,
+                "metricName": "search_conversion_rate"
+              },
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonDoubleWrapper",
+                  "doubleValue": 0.01956521739130435
+                },
+                "valueType": "PERCENTAGE",
+                "valueChange": null,
+                "valueChangeType": "PERCENTAGE",
+                "valueString": "1.96%",
+                "currency": null,
+                "label": "Listing-to-booking conversion",
+                "valueChangeString": null,
+                "metricName": "listing_conversion_rate"
+              }
+            ],
+            "componentName": "LIST_OF_METRICS_SECTION"
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "traceId": "e95bWJ4YEPud2kBsPjybsg=="
+  }
+}

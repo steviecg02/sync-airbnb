@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ChartQueryResponse",
+  "type": "object",
+  "required": ["timeseries_rows", "primary_metric", "secondary_metrics"],
+  "properties": {
+    "timeseries_rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "granularity": { "type": "string" },
+          "ds": { "type": "string", "format": "date" },
+          "label": { "type": ["string", "null"] },
+          "value": { "type": ["number", "string", "null"] },
+          "value_string": { "type": ["string", "null"] },
+          "value_type": { "type": ["string", "null"] },
+          "source_label": { "type": ["string", "null"] }
+        },
+        "required": ["ds", "value"]
+      }
+    },
+    "primary_metric": {
+      "type": "object",
+      "properties": {
+        "metric_name": { "type": ["string", "null"] },
+        "label": { "type": ["string", "null"] },
+        "value": { "type": ["number", "string", "null"] },
+        "value_string": { "type": ["string", "null"] },
+        "value_type": { "type": ["string", "null"] },
+        "value_change": { "type": ["number", "string", "null"] },
+        "value_change_string": { "type": ["string", "null"] }
+      }
+    },
+    "secondary_metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric_name": { "type": ["string", "null"] },
+          "label": { "type": ["string", "null"] },
+          "value": { "type": ["number", "string", "null"] },
+          "value_string": { "type": ["string", "null"] },
+          "value_type": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

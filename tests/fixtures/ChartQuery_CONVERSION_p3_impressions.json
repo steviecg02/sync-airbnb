@@ -1,0 +1,735 @@
+{
+  "data": {
+    "porygon": {
+      "__typename": "porygonQuery",
+      "getPerformanceComponents": {
+        "__typename": "porygonGetPerformanceComponentsResponse",
+        "components": [
+          {
+            "__typename": "porygonPPivotChartSection",
+            "title": "Total page views",
+            "subtitle": "Compare",
+            "comparisonTypeSelectors": [
+              {
+                "__typename": "porygonPComparisonTypeSelector",
+                "label": "Over time",
+                "type": "YOY",
+                "isActive": false
+              },
+              {
+                "__typename": "porygonPComparisonTypeSelector",
+                "label": "Similar listings",
+                "type": "MARKET",
+                "isActive": true
+              }
+            ],
+            "metricLineCharts": [
+              {
+                "__typename": "porygonPMetricLineChart",
+                "dataPoints": [
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-12",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "15"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "15",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-13",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "14"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "14",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-14",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "15"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "15",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-15",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "15"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "15",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-16",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "24"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "24",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-17",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "39"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "39",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-18",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "37"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "37",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-19",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "16"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "16",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-20",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "5"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "5",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-21",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "3"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "3",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-22",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "2"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "2",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-23",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "1"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "1",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-24",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "1"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "1",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-25",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "1"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "1",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-26",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "17"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "17",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-27",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "17"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "17",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-28",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "20"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "20",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-29",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "18"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "18",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-30",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "20"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "20",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-31",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "22"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "22",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-01",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "25"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "25",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-02",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "24"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "24",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-03",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "21"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "21",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-04",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "20"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "20",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-05",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "20"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "20",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-06",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "21"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "21",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-07",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "15"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "15",
+                    "label": "Your listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-08",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "12"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "12",
+                    "label": "Your listings"
+                  }
+                ],
+                "label": "Your performance",
+                "granularity": "DAY"
+              },
+              {
+                "__typename": "porygonPMetricLineChart",
+                "dataPoints": [
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-12",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "6"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "6",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-13",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "5"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "5",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-14",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "6"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "6",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-15",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "5"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "5",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-16",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "6"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "6",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-17",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "10"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "10",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-18",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "11"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "11",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-19",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "9"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "9",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-20",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-21",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "8"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "8",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-22",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-23",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "9"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "9",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-24",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "10"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "10",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-25",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "11"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "11",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-26",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "8"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "8",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-27",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "9"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "9",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-28",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "8"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "8",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-29",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "9"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "9",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-30",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "9"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "9",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-01-31",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "12"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "12",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-01",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "13"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "13",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-02",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "8"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "8",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-03",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-04",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-05",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-06",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "7"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "7",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-07",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "12"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "12",
+                    "label": "Similar listings"
+                  },
+                  {
+                    "__typename": "porygonPDataPoint",
+                    "ds": "2025-02-08",
+                    "value": {
+                      "__typename": "porygonLongWrapper",
+                      "longValue": "12"
+                    },
+                    "valueType": "NUMBER",
+                    "valueString": "12",
+                    "label": "Similar listings"
+                  }
+                ],
+                "label": "Similar listings",
+                "granularity": "DAY"
+              }
+            ],
+            "description": "The total page views for selected listings is 222 higher than similar listings in the area.",
+            "link": {
+              "__typename": "porygonPLink",
+              "url": "https://www.airbnb.com/help/article/2652?locale=en",
+              "label": "Learn how we compare listings"
+            },
+            "componentName": "PIVOT_CHART_SECTION",
+            "primaryMetric": {
+              "__typename": "porygonPMetricUnit",
+              "value": {
+                "__typename": "porygonLongWrapper",
+                "longValue": "460"
+              },
+              "valueType": "NUMBER",
+              "valueChange": {
+                "__typename": "porygonDoubleWrapper",
+                "doubleValue": 222.0
+              },
+              "valueChangeType": "NUMBER",
+              "valueString": "460",
+              "currency": null,
+              "label": "Total page views",
+              "valueChangeString": "222",
+              "metricName": "p3_impressions"
+            },
+            "secondaryMetrics": [
+              {
+                "__typename": "porygonPMetricUnit",
+                "value": {
+                  "__typename": "porygonLongWrapper",
+                  "longValue": "8166"
+                },
+                "valueType": "NUMBER",
+                "valueChange": null,
+                "valueChangeType": "NUMBER",
+                "valueString": "8166",
+                "currency": null,
+                "label": "Total first-page search impressions",
+                "valueChangeString": null,
+                "metricName": "p2_impressions"
+              }
+            ],
+            "minPoint": {
+              "__typename": "porygonPDataPoint",
+              "ds": "2025-07-10",
+              "value": {
+                "__typename": "porygonLongWrapper",
+                "longValue": "0"
+              },
+              "valueType": "NUMBER",
+              "valueString": "0",
+              "label": null
+            },
+            "maxPoint": {
+              "__typename": "porygonPDataPoint",
+              "ds": "2025-07-10",
+              "value": {
+                "__typename": "porygonLongWrapper",
+                "longValue": "47"
+              },
+              "valueType": "NUMBER",
+              "valueString": "47",
+              "label": null
+            },
+            "emptyState": {
+              "__typename": "porygonPEmptyState",
+              "actionUrl": null,
+              "message": "Your total page views will show here within 48 hours of your first booking."
+            }
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "traceId": "J2vrvEFtbPnov3mjGllRAQ=="
+  }
+}

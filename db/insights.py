@@ -1,11 +1,15 @@
+import logging
 from sqlalchemy import Table, Column, Text, Float, Integer, Date, TIMESTAMP, MetaData
-from sqlalchemy import insert
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import func
 
+logger = logging.getLogger(__name__)
 metadata = MetaData()
 
-airbnb_chart_query = Table("airbnb_chart_query", metadata,
+airbnb_chart_query = Table(
+    "airbnb_chart_query",
+    metadata,
     Column("time", TIMESTAMP(timezone=True), server_default=func.now(), nullable=False),
     Column("airbnb_listing_id", Text, nullable=False),
     Column("airbnb_internal_name", Text),
@@ -20,7 +24,9 @@ airbnb_chart_query = Table("airbnb_chart_query", metadata,
     Column("p3_impressions_similar_value_string", Text),
 )
 
-airbnb_chart_summary = Table("airbnb_chart_summary", metadata,
+airbnb_chart_summary = Table(
+    "airbnb_chart_summary",
+    metadata,
     Column("time", TIMESTAMP(timezone=True), server_default=func.now(), nullable=False),
     Column("airbnb_listing_id", Text, nullable=False),
     Column("airbnb_internal_name", Text),
@@ -44,7 +50,9 @@ airbnb_chart_summary = Table("airbnb_chart_summary", metadata,
     Column("p2_impressions_value_string", Text),
 )
 
-airbnb_list_of_metrics = Table("airbnb_list_of_metrics", metadata,
+airbnb_list_of_metrics = Table(
+    "airbnb_list_of_metrics",
+    metadata,
     Column("time", TIMESTAMP(timezone=True), server_default=func.now(), nullable=False),
     Column("airbnb_listing_id", Text, nullable=False),
     Column("airbnb_internal_name", Text),
@@ -64,38 +72,38 @@ airbnb_list_of_metrics = Table("airbnb_list_of_metrics", metadata,
     Column("p2_impressions_value_string", Text),
 )
 
+
 def insert_chart_query_rows(engine: Engine, rows: list[dict]):
-    """
-    Insert parsed chart_query rows using SQLAlchemy Core.
-    """
     if not rows:
+        logger.info("No chart_query rows to insert.")
         return
-    
+
     for r in rows:
         r["metric_date"] = r.pop("date")
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_query).values(rows)
+        stmt = insert(airbnb_chart_query).values(rows).on_conflict_do_nothing()
         conn.execute(stmt)
+        logger.info(f"Inserted {len(rows)} chart_query rows.")
+
 
 def insert_chart_summary_rows(engine: Engine, rows: list[dict]):
-    """
-    Insert parsed chart_summary rows using SQLAlchemy Core.
-    """
     if not rows:
+        logger.info("No chart_summary rows to insert.")
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_summary).values(rows)
+        stmt = insert(airbnb_chart_summary).values(rows).on_conflict_do_nothing()
         conn.execute(stmt)
+        logger.info(f"Inserted {len(rows)} chart_summary rows.")
+
 
 def insert_list_of_metrics_rows(engine: Engine, rows: list[dict]):
-    """
-    Insert parsed list_of_metrics rows using SQLAlchemy Core.
-    """
     if not rows:
+        logger.info("No list_of_metrics rows to insert.")
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_list_of_metrics).values(rows)
+        stmt = insert(airbnb_list_of_metrics).values(rows).on_conflict_do_nothing()
         conn.execute(stmt)
+        logger.info(f"Inserted {len(rows)} list_of_metrics rows.")

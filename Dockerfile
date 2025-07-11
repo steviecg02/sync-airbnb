@@ -13,10 +13,11 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 
 # Install dependencies
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variable to distinguish prod vs local
 ENV ENV=production
 
 # Default command Render will run when the cron job fires
-CMD ["python", "main.py"]
+CMD ["python", "-m", "pollers.insights"]

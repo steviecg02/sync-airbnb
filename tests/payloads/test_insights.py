@@ -18,8 +18,8 @@ def base_args():
 def test_chart_query_payload_has_expected_structure(base_args):
     payload = build_metric_payload(query_type="ChartQuery", **base_args)
     assert payload["operationName"] == "ChartQuery"
-    assert payload["variables"]["request"]["arguments"]["relativeDsStart"] == 4
-    assert payload["variables"]["request"]["arguments"]["relativeDsEnd"] == 11
+    assert payload["variables"]["request"]["arguments"]["relativeDsStart"] == 5
+    assert payload["variables"]["request"]["arguments"]["relativeDsEnd"] == 12
     assert payload["variables"]["request"]["arguments"]["groupByValues"] == ["POSITIVE"]
     assert "metricComparisonType" not in payload["variables"]["request"]["arguments"]
 

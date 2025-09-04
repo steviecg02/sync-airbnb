@@ -37,9 +37,9 @@ def build_metric_payload(
     if query_type not in {"ListOfMetricsQuery", "ChartQuery"}:
         raise ValueError(f"Unsupported query_type: {query_type}")
 
-    # Airbnb UI offset = +2
-    offset_start = (start_date - scrape_day).days + 2
-    offset_end = (end_date - scrape_day).days + 2
+    # Airbnb UI offset = +3
+    offset_start = (start_date - scrape_day).days + 3
+    offset_end = (end_date - scrape_day).days + 3
 
     sha256_hash = {
         "ListOfMetricsQuery": "b22a5ded5e6c6d168f1d224b78f34182e7366e5cc65203ec04f1e718286a09e1",

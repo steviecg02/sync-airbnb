@@ -6,6 +6,7 @@ help:
 	@echo "Available targets:"
 	@echo "  make install         Install prod dependencies"
 	@echo "  make install-dev     Install dev + prod dependencies"
+	@echo "  make venv            Create and initialize a clean virtualenv"
 	@echo "  make build           Build Docker image"
 	@echo "  make shell           Run interactive container with mounted code"
 	@echo "  make test            Run all tests with pytest"
@@ -21,6 +22,10 @@ install:
 # Install all dev tools + prod deps
 install-dev: install
 	pip install -r dev-requirements.txt
+
+# Install all dev tools + prod deps in a virtual environment
+venv:
+	python3 -m venv venv && source venv/bin/activate && make install-dev
 
 # Build Docker image
 build:
@@ -50,11 +55,10 @@ test:
 
 # Run Ruff linter
 lint:
-	ruff check .
+	ruff check . --fix
 
 # Format code with Black
 format:
-	ruff check . --fix
 	black .
 
 # Remove caches and pyc

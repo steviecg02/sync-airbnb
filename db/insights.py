@@ -82,7 +82,8 @@ def insert_chart_query_rows(engine: Engine, rows: list[dict]):
         r["metric_date"] = r.pop("date")
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_query).values(rows).on_conflict_do_update(
+        stmt = insert(airbnb_chart_query).values(rows)
+        stmt = stmt.on_conflict_do_update(
             constraint="uq_airbnb_chart_query_listing_metric_date",
             set_=dict(stmt.excluded)
         )
@@ -96,7 +97,8 @@ def insert_chart_summary_rows(engine: Engine, rows: list[dict]):
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_summary).values(rows).on_conflict_do_update(
+        stmt = insert(airbnb_chart_summary).values(rows)
+        stmt = stmt.on_conflict_do_update(
             constraint="uq_airbnb_chart_summary_listing_window",
             set_=dict(stmt.excluded)
         )
@@ -110,7 +112,8 @@ def insert_list_of_metrics_rows(engine: Engine, rows: list[dict]):
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_list_of_metrics).values(rows).on_conflict_do_update(
+        stmt = insert(airbnb_list_of_metrics).values(rows)
+        stmt = stmt.on_conflict_do_update(
             constraint="uq_airbnb_list_of_metrics_listing_window",
             set_=dict(stmt.excluded)
         )

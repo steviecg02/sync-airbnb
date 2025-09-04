@@ -82,7 +82,10 @@ def insert_chart_query_rows(engine: Engine, rows: list[dict]):
         r["metric_date"] = r.pop("date")
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_query).values(rows).on_conflict_do_nothing()
+        stmt = insert(airbnb_chart_query).values(rows).on_conflict_do_update(
+            constraint="uq_airbnb_chart_query_listing_metric_date",
+            set_=dict(stmt.excluded)
+        )
         conn.execute(stmt)
         logger.info(f"Inserted {len(rows)} chart_query rows.")
 
@@ -93,7 +96,10 @@ def insert_chart_summary_rows(engine: Engine, rows: list[dict]):
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_chart_summary).values(rows).on_conflict_do_nothing()
+        stmt = insert(airbnb_chart_summary).values(rows).on_conflict_do_update(
+            constraint="uq_airbnb_chart_summary_listing_window",
+            set_=dict(stmt.excluded)
+        )
         conn.execute(stmt)
         logger.info(f"Inserted {len(rows)} chart_summary rows.")
 
@@ -104,6 +110,9 @@ def insert_list_of_metrics_rows(engine: Engine, rows: list[dict]):
         return
 
     with engine.begin() as conn:
-        stmt = insert(airbnb_list_of_metrics).values(rows).on_conflict_do_nothing()
+        stmt = insert(airbnb_list_of_metrics).values(rows).on_conflict_do_update(
+            constraint="uq_airbnb_list_of_metrics_listing_window",
+            set_=dict(stmt.excluded)
+        )
         conn.execute(stmt)
         logger.info(f"Inserted {len(rows)} list_of_metrics rows.")

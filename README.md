@@ -18,7 +18,7 @@ This system:
   - **Conversion metrics** via `ChartQuery` (e.g. impressions, conversion rate)
   - **Visibility metrics** via `ListOfMetricsQuery` (e.g. CTR, page views)
 - Aligns query windows to **Sunday–Saturday weeks**
-- Respects Airbnb’s 180-day offset limit (+2-day adjustment)
+- Respects Airbnb's 180-day offset limit (+3-day adjustment)
 - Normalizes raw JSON responses into structured rows
 - Inserts data into a **Postgres + TimescaleDB schema**
 - (Optional) Runs as a **daily cron job** in Docker
@@ -94,7 +94,7 @@ CMD ["python", "-m", "pollers.insights"]
 
 ## 🧠 Dev Notes
 
-- All Airbnb GraphQL metrics use +2 day offset for `relativeDsStart` and `relativeDsEnd`
+- All Airbnb GraphQL metrics use +3 day offset for `relativeDsStart` and `relativeDsEnd`
 - `ChartQuery` = weekly windows (28 days)
 - `ListOfMetricsQuery` = daily snapshots (7-day lookback to 180-day forward)
 - Use `AirbnbSync.parse_all()` to get 3 tables:

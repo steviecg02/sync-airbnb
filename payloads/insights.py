@@ -19,7 +19,7 @@ def build_metric_payload(
 ) -> Dict:
     """
     Build a GraphQL payload for Airbnb metric queries (ChartQuery or ListOfMetricsQuery).
-    Applies Airbnb's known +2 offset from scrape_day to match UI behavior.
+    Applies Airbnb's known +3 offset from scrape_day to match UI behavior.
 
     Args:
         query_type: One of "ListOfMetricsQuery", "ChartQuery"

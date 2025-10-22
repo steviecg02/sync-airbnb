@@ -1,6 +1,6 @@
 from datetime import date
 import pytest
-from payloads.insights import build_metric_payload
+from sync_airbnb.payloads.insights import build_metric_payload
 
 
 @pytest.fixture

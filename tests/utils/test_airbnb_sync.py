@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 import pytest
 from datetime import date
-from utils.airbnb_sync import AirbnbSync
+from sync_airbnb.utils.airbnb_sync import AirbnbSync
 
 FIXTURE_DIR = Path(__file__).parent.parent / "fixtures"
 

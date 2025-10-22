@@ -1,4 +1,4 @@
-from flatteners.utils import get_first_component, extract_numeric_value, coerce_number
+from sync_airbnb.flatteners.utils import get_first_component, extract_numeric_value, coerce_number
 
 
 def test_get_first_component_valid_structure():

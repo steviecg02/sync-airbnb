@@ -16,8 +16,15 @@ COPY . .
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy and make entrypoint executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set environment variable to distinguish prod vs local
 ENV ENV=production
 
-# Default command Render will run when the cron job fires
-CMD ["python", "-m", "pollers.insights"]
+# Use entrypoint to run migrations before starting app
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Default command - runs FastAPI service with scheduler
+CMD ["uvicorn", "sync_airbnb.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,5 +1,7 @@
 from datetime import date
+
 import pytest
+
 from sync_airbnb.payloads.insights import build_metric_payload
 
 
@@ -25,9 +27,7 @@ def test_chart_query_payload_has_expected_structure(base_args):
 
 
 def test_include_comparison_adds_market_flag(base_args):
-    payload = build_metric_payload(
-        query_type="ChartQuery", include_comparison=True, **base_args
-    )
+    payload = build_metric_payload(query_type="ChartQuery", include_comparison=True, **base_args)
     args = payload["variables"]["request"]["arguments"]
     assert args["metricComparisonType"] == "MARKET"
 

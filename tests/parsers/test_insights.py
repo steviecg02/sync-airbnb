@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
 
-from sync_airbnb.parsers.insights import parse_all
 from jsonschema import validate
+
+from sync_airbnb.parsers.insights import parse_all
 
 FIXTURE_DIR = Path(__file__).parent.parent / "fixtures"
 SCHEMA_DIR = Path(__file__).parent.parent / "schemas"

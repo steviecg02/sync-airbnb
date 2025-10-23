@@ -14,5 +14,5 @@ def load_fixture(name: str) -> dict:
     Returns:
         dict: Parsed JSON object from the fixture file.
     """
-    with open(FIXTURE_DIR / name, "r", encoding="utf-8") as f:
+    with open(FIXTURE_DIR / name, encoding="utf-8") as f:
         return json.load(f)

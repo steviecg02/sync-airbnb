@@ -1,7 +1,8 @@
 from datetime import date
-from unittest.mock import patch, MagicMock
-from sync_airbnb.services import insights
+from unittest.mock import MagicMock, patch
+
 from sync_airbnb.models.account import Account
+from sync_airbnb.services import insights
 
 
 @patch("sync_airbnb.services.insights.update_last_sync")

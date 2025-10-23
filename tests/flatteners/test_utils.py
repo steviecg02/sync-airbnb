@@ -1,14 +1,8 @@
-from sync_airbnb.flatteners.utils import get_first_component, extract_numeric_value, coerce_number
+from sync_airbnb.flatteners.utils import coerce_number, extract_numeric_value, get_first_component
 
 
 def test_get_first_component_valid_structure():
-    data = {
-        "data": {
-            "porygon": {
-                "getPerformanceComponents": {"components": [{"mock": "component"}]}
-            }
-        }
-    }
+    data = {"data": {"porygon": {"getPerformanceComponents": {"components": [{"mock": "component"}]}}}}
     assert get_first_component(data) == {"mock": "component"}
 
 

@@ -1,4 +1,5 @@
 from jsonschema import validate
+
 from sync_airbnb.flatteners.insights import flatten_list_of_metrics_query
 from tests.utils.fixture import load_fixture
 from tests.utils.schema import load_schema

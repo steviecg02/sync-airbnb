@@ -3,12 +3,12 @@ from logging.config import fileConfig
 
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
-from sync_airbnb.models.base import Base
-
 # Import all models so they are registered with Base.metadata
-from sync_airbnb.models import chart_query, chart_summary, list_of_metrics, account  # noqa: F401
+from sync_airbnb.models import account, chart_query, chart_summary, list_of_metrics  # noqa: F401
+from sync_airbnb.models.base import Base
 
 # Load .env before anything else
 load_dotenv()

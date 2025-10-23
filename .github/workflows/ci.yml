@@ -65,6 +65,7 @@ jobs:
           MODE: admin  # Set to admin mode to avoid requiring ACCOUNT_ID
           # Dummy credentials for tests (not actually used, but required by config.py)
           AIRBNB_COOKIE: "test_cookie"
+          AIRBNB_API_KEY: "test_api_key"
           X_CLIENT_VERSION: "test_version"
           X_AIRBNB_CLIENT_TRACE_ID: "test_trace_id"
           USER_AGENT: "test_user_agent"

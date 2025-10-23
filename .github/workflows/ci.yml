@@ -70,6 +70,8 @@ jobs:
           X_AIRBNB_CLIENT_TRACE_ID: "test_trace_id"
           USER_AGENT: "test_user_agent"
         run: |
+          # Clean pycache to avoid pytest import conflicts with duplicate test filenames
+          find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
           pytest --cov=sync_airbnb --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov

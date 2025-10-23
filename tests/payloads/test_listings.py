@@ -1,4 +1,4 @@
-from payloads.listings import build_listings_payload
+from sync_airbnb.payloads.listings import build_listings_payload
 
 
 def test_build_listings_payload_structure():

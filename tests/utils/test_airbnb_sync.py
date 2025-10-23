@@ -1,10 +1,12 @@
 # tests/utils/test_airbnb_sync.py
 
-from pathlib import Path
 import json
-import pytest
 from datetime import date
-from utils.airbnb_sync import AirbnbSync
+from pathlib import Path
+
+import pytest
+
+from sync_airbnb.utils.airbnb_sync import AirbnbSync
 
 FIXTURE_DIR = Path(__file__).parent.parent / "fixtures"
 

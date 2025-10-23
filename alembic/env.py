@@ -3,9 +3,12 @@ from logging.config import fileConfig
 
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
-from db.insights import metadata as metrics_metadata
+# Import all models so they are registered with Base.metadata
+from sync_airbnb.models import account, chart_query, chart_summary, list_of_metrics  # noqa: F401
+from sync_airbnb.models.base import Base
 
 # Load .env before anything else
 load_dotenv()
@@ -21,8 +24,8 @@ if not DATABASE_URL:
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
-# Import only the STR-specific metadata for Alembic to manage
-target_metadata = metrics_metadata
+# Use Base.metadata which includes all registered models
+target_metadata = Base.metadata
 
 # --- Migration run modes ---
 

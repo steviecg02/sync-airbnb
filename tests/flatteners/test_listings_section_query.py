@@ -1,5 +1,6 @@
 from jsonschema import validate
-from flatteners.listings import flatten_listing_ids
+
+from sync_airbnb.flatteners.listings import flatten_listing_ids
 from tests.utils.fixture import load_fixture
 from tests.utils.schema import load_schema
 

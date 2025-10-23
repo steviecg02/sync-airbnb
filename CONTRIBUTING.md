@@ -476,6 +476,74 @@ is_first_run = account.last_sync_at is None
 window_start, window_end = get_poll_window(is_first_run=is_first_run, today=scrape_day)
 ```
 
+### Validation Helpers
+
+Use validation helper functions to reduce duplication across API routes:
+
+```python
+from sync_airbnb.api.routes._helpers import validate_account_exists, validate_date_range
+
+@router.get("/accounts/{account_id}/metrics")
+async def get_metrics(
+    account_id: str,
+    start_date: date,
+    end_date: date,
+    engine: Engine = Depends(get_db_engine),
+):
+    # Validate account exists (raises 404 if not found)
+    account = validate_account_exists(engine, account_id)
+
+    # Validate date range (raises 400 if start >= end)
+    validate_date_range(start_date, end_date)
+
+    # ... rest of implementation
+```
+
+**Available Helpers:**
+- `validate_account_exists(engine, account_id)` - Returns Account or raises 404
+- `validate_date_range(start_date, end_date)` - Raises 400 if invalid range
+
+### Prometheus Instrumentation
+
+All layers should be instrumented with Prometheus metrics for observability:
+
+```python
+from sync_airbnb.metrics import (
+    sync_jobs_total,
+    sync_jobs_duration_seconds,
+    errors_total,
+)
+import time
+
+def run_insights_poller(account: Account, trigger: str = "manual"):
+    """Run insights sync with Prometheus instrumentation."""
+    # Increment job counter
+    sync_jobs_total.labels(account_id=account.account_id, trigger=trigger).inc()
+
+    start_time = time.time()
+    try:
+        # ... sync logic ...
+        status = "success"
+    except Exception as e:
+        status = "failure"
+        errors_total.labels(error_type=type(e).__name__, component="sync").inc()
+        raise
+    finally:
+        # Record duration
+        duration = time.time() - start_time
+        sync_jobs_duration_seconds.labels(
+            account_id=account.account_id,
+            status=status
+        ).observe(duration)
+```
+
+**Metric Categories:**
+- **HTTP Metrics**: Request counts, duration, status codes
+- **Database Metrics**: Query duration, connection pool, error rates
+- **Sync Job Metrics**: Job counts, duration, success/failure rates
+- **Airbnb API Metrics**: Request duration, retries, rate limits
+- **Error Tracking**: Errors by type and component
+
 ---
 
 ## Testing Requirements
@@ -570,6 +638,32 @@ def test_insert_chart_query_with_duplicate_then_upsert():
     with engine.connect() as conn:
         result = conn.execute(select(ChartQuery)).fetchall()
         assert len(result) == 1  # Upsert, not duplicate
+```
+
+#### Testing API Endpoints with Dependency Injection
+
+Use FastAPI's TestClient to test routes that use dependency injection:
+
+```python
+from fastapi.testclient import TestClient
+from sync_airbnb.main import app
+
+client = TestClient(app)
+
+def test_create_account_returns_201():
+    """Test account creation endpoint."""
+    response = client.post("/api/v1/accounts", json={
+        "account_id": "123",
+        "airbnb_cookie": "...",
+        # ... other fields
+    })
+    assert response.status_code == 201
+    assert response.json()["account_id"] == "123"
+
+def test_get_account_not_found_returns_404():
+    """Test getting non-existent account."""
+    response = client.get("/api/v1/accounts/nonexistent")
+    assert response.status_code == 404
 ```
 
 #### Test Happy Path AND Error Cases

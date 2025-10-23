@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
@@ -16,14 +17,23 @@ def get_env(key: str, required: bool = True, default: str | None = None) -> str 
 
 
 # --- Logging configuration ---
-LOG_LEVEL = get_env(
-    "LOG_LEVEL", required=False, default="DEBUG" if os.path.exists(".env") else "INFO"
+LOG_LEVEL = (
+    get_env("LOG_LEVEL", required=False, default="DEBUG" if os.path.exists(".env") else "INFO") or "INFO"
 ).upper()
 DEBUG = LOG_LEVEL == "DEBUG"
 
 # --- Required settings ---
 DATABASE_URL = get_env("DATABASE_URL")
-engine = create_engine(DATABASE_URL, future=True)
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is required")
+
+# Create database engine with connection pool settings
+engine = create_engine(
+    DATABASE_URL,
+    future=True,
+    pool_pre_ping=True,  # Test connections before use (prevents stale connection errors)
+    pool_recycle=3600,  # Recycle connections every hour (prevents leaks, handles network hiccups)
+)
 
 # --- Database schema ---
 SCHEMA = "airbnb"
@@ -37,14 +47,16 @@ if MODE not in ("admin", "worker", "hybrid"):
 ACCOUNT_ID = get_env("ACCOUNT_ID", required=(MODE in ("worker", "hybrid")), default=None)
 
 # --- Optional flags ---
-INSIGHTS_DRY_RUN = get_env(
-    "INSIGHTS_DRY_RUN", required=False, default="false"
-).lower() in ("1", "true", "yes")
+INSIGHTS_DRY_RUN = (get_env("INSIGHTS_DRY_RUN", required=False, default="false") or "false").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 
 # --- Polling window configuration ---
 # These control how far back and forward the Airbnb poller collects data.
 # May be removed once backfill/forecast limits are confirmed.
 
-LOOKBACK_WEEKS = int(get_env("LOOKBACK_WEEKS", required=False, default="25"))
-LOOKAHEAD_WEEKS = int(get_env("LOOKAHEAD_WEEKS", required=False, default="25"))
+LOOKBACK_WEEKS = int(get_env("LOOKBACK_WEEKS", required=False, default="25") or "25")
+LOOKAHEAD_WEEKS = int(get_env("LOOKAHEAD_WEEKS", required=False, default="25") or "25")
 MAX_LOOKBACK_DAYS = 180  # hard cap for backfill

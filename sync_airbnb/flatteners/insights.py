@@ -1,11 +1,12 @@
 import logging
-from typing import Any, Dict, List
-from sync_airbnb.flatteners.utils import get_first_component, extract_numeric_value
+from typing import Any
+
+from sync_airbnb.flatteners.utils import extract_numeric_value, get_first_component
 
 logger = logging.getLogger(__name__)
 
 
-def flatten_chart_query(response: Dict[str, Any]) -> Dict[str, Any]:
+def flatten_chart_query(response: dict[str, Any]) -> dict[str, Any]:
     """
     Flatten the Airbnb ChartQuery response into structured components.
 
@@ -82,9 +83,7 @@ def flatten_chart_query(response: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"Failed to flatten ChartQuery response: {e}")
 
 
-def flatten_list_of_metrics_query(
-    response: Dict[str, Any]
-) -> Dict[str, List[Dict[str, Any]]]:
+def flatten_list_of_metrics_query(response: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
     """
     Flatten the Airbnb ListOfMetricsQuery response.
 

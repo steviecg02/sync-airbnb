@@ -4,7 +4,9 @@ Scheduler service for running Airbnb insights polling on a schedule.
 This module defines the scheduled jobs that run in worker/hybrid mode to
 periodically fetch and sync Airbnb metrics for a specific account.
 """
+
 import logging
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from sync_airbnb import config
@@ -22,6 +24,10 @@ def run_sync_on_startup():
     immediately after being created for new accounts.
     """
     try:
+        if config.ACCOUNT_ID is None:
+            logger.error("ACCOUNT_ID not configured, cannot run startup sync")
+            return
+
         logger.info(f"Checking if startup sync needed for account {config.ACCOUNT_ID}")
 
         account = get_account(config.engine, config.ACCOUNT_ID)
@@ -35,10 +41,12 @@ def run_sync_on_startup():
 
         if account.last_sync_at is None:
             logger.info(f"First sync for account {config.ACCOUNT_ID}, running startup sync...")
-            run_insights_poller(account)
+            run_insights_poller(account, trigger="startup")
             logger.info(f"Startup sync completed for account {config.ACCOUNT_ID}")
         else:
-            logger.info(f"Account {config.ACCOUNT_ID} already synced (last: {account.last_sync_at}), skipping startup sync")
+            logger.info(
+                f"Account {config.ACCOUNT_ID} already synced (last: {account.last_sync_at}), skipping startup sync"
+            )
 
     except Exception as e:
         logger.error(f"Error in startup sync for account {config.ACCOUNT_ID}: {e}", exc_info=True)
@@ -54,6 +62,10 @@ def sync_insights_job():
     3. Handles errors and logs them
     """
     try:
+        if config.ACCOUNT_ID is None:
+            logger.error("ACCOUNT_ID not configured, cannot run scheduled sync")
+            return
+
         logger.info(f"Starting scheduled sync for account {config.ACCOUNT_ID}")
 
         # Fetch account from database
@@ -67,7 +79,7 @@ def sync_insights_job():
             return
 
         # Run insights poller
-        run_insights_poller(account)
+        run_insights_poller(account, trigger="scheduled")
 
         logger.info(f"Completed scheduled sync for account {config.ACCOUNT_ID}")
 
@@ -85,12 +97,12 @@ def setup_scheduler(scheduler: BackgroundScheduler):
     # Run insights sync daily at 5 AM UTC (1 AM EDT / 12 AM EST)
     scheduler.add_job(
         sync_insights_job,
-        trigger='cron',
+        trigger="cron",
         hour=5,
         minute=0,
-        timezone='UTC',
-        id='sync_insights',
-        name='Sync Airbnb Insights',
+        timezone="UTC",
+        id="sync_insights",
+        name="Sync Airbnb Insights",
         replace_existing=True,
     )
 

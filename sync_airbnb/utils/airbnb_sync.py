@@ -1,15 +1,15 @@
-import logging
 import json
+import logging
 from datetime import date, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
-from sync_airbnb.network.http_client import post_with_retry
-from sync_airbnb.network.http_headers import HEADERS
-from sync_airbnb.payloads.insights import build_metric_payload
-from sync_airbnb.payloads.listings import build_listings_payload
 from sync_airbnb.flatteners.insights import flatten_chart_query, flatten_list_of_metrics_query
 from sync_airbnb.flatteners.listings import flatten_listing_ids
+from sync_airbnb.network.http_client import post_with_retry
+from sync_airbnb.network.http_headers import HEADERS
 from sync_airbnb.parsers.insights import parse_all
+from sync_airbnb.payloads.insights import build_metric_payload
+from sync_airbnb.payloads.listings import build_listings_payload
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class AirbnbSync:
 
     MAX_METRIC_OFFSET_DAYS = 182
 
-    def __init__(self, scrape_day: date, debug: bool = False, headers: Dict[str, str] | None = None):
+    def __init__(self, scrape_day: date, debug: bool = False, headers: dict[str, str] | None = None):
         """
         Args:
             scrape_day (date): Anchor date for calculating relative offsets in GraphQL payloads.
@@ -43,7 +43,7 @@ class AirbnbSync:
         self.scrape_day = scrape_day
         self.debug = debug
         self.headers = headers if headers is not None else HEADERS
-        self._parsed_chunks: List[dict] = []
+        self._parsed_chunks: list[dict] = []
 
     def get_url(self, query_type: str) -> str:
         """
@@ -80,12 +80,12 @@ class AirbnbSync:
     def poll(
         self,
         query_type: str,
-        listing_id: str = "",
+        listing_id: str | None = None,
         listing_name: str = "",
-        start_date: date = None,
-        end_date: date = None,
-        metric_type: str = None,
-        group_values: List[str] = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        metric_type: str | None = None,
+        group_values: list[str] | None = None,
     ) -> dict:
         """
         Poll the Airbnb API with correct payload based on query_type.
@@ -112,6 +112,10 @@ class AirbnbSync:
         else:
             if not (listing_id and start_date and end_date):
                 raise ValueError("Missing required arguments for metric query")
+            if not metric_type:
+                raise ValueError("Missing metric_type for metric query")
+            if not group_values:
+                raise ValueError("Missing group_values for metric query")
 
             payload = build_metric_payload(
                 query_type=query_type,
@@ -131,9 +135,7 @@ class AirbnbSync:
         response = post_with_retry(url=url, headers=self.headers, json=payload)
 
         if self.debug:
-            logger.debug(
-                f"[{query_type}] Response:\n%s", json.dumps(response, indent=2)
-            )
+            logger.debug(f"[{query_type}] Response:\n%s", json.dumps(response, indent=2))
 
         return {
             "data": response,
@@ -181,7 +183,7 @@ class AirbnbSync:
         start_date: date,
         end_date: date,
         metric_type: str,
-        group_values: List[str],
+        group_values: list[str],
     ) -> dict:
         """
         Poll and flatten a single time window.
@@ -205,7 +207,7 @@ class AirbnbSync:
         listing_id: str,
         listing_name: str,
         query_type: str,
-        metrics: List[tuple],
+        metrics: list[tuple],
         start_date: date,
         end_date: date,
         window_size_days: int,
@@ -234,9 +236,7 @@ class AirbnbSync:
 
         current_start = start_date
         while current_start <= end_date:
-            current_end = min(
-                current_start + timedelta(days=window_size_days - 1), end_date
-            )
+            current_end = min(current_start + timedelta(days=window_size_days - 1), end_date)
 
             for metric_type, group_values in metrics:
                 if self.debug:
@@ -256,15 +256,13 @@ class AirbnbSync:
                     )
                     self._parsed_chunks.append(flat)
                 except Exception as e:
-                    logger.error(
-                        f"{query_type} failed for {listing_id} ({current_start} – {current_end}): {e}"
-                    )
+                    logger.error(f"{query_type} failed for {listing_id} ({current_start} – {current_end}): {e}")
 
             current_start = current_end + timedelta(days=1)
 
         return len(self._parsed_chunks)
 
-    def parse_all(self) -> Dict[str, List[Dict[str, Any]]]:
+    def parse_all(self) -> dict[str, list[dict[str, Any]]]:
         """
         Run the final parser layer to produce wide-format metrics rows.
 

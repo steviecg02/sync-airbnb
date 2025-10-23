@@ -1,6 +1,5 @@
-from typing import List, Dict
-from datetime import date
 import logging
+from datetime import date
 
 logger = logging.getLogger(__name__)
 
@@ -13,10 +12,10 @@ def build_metric_payload(
     end_date: date,
     scrape_day: date,
     metric_type: str,
-    group_values: List[str],
+    group_values: list[str],
     include_comparison: bool = False,
     debug: bool = False,
-) -> Dict:
+) -> dict:
     """
     Build a GraphQL payload for Airbnb metric queries (ChartQuery or ListOfMetricsQuery).
     Applies Airbnb's known +3 offset from scrape_day to match UI behavior.

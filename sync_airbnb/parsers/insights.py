@@ -1,16 +1,14 @@
 import json
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 from sync_airbnb.flatteners.utils import coerce_number
 
 logger = logging.getLogger(__name__)
 
 
-def parse_all(
-    chunks: List[Dict[str, Any]], debug: bool = False
-) -> Dict[str, List[Dict[str, Any]]]:
+def parse_all(chunks: list[dict[str, Any]], debug: bool = False) -> dict[str, list[dict[str, Any]]]:
     """
     Parse all metric chunks from Airbnb flatteners into pivoted wide-format outputs.
 
@@ -31,16 +29,12 @@ def parse_all(
     }
 
     if debug:
-        logger.debug(
-            "Parsed results from parse_all:\n%s", json.dumps(results, indent=2)
-        )
+        logger.debug("Parsed results from parse_all:\n%s", json.dumps(results, indent=2))
 
     return results
 
 
-def _extract_chart_timeseries_rows(
-    chunks: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def _extract_chart_timeseries_rows(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Pivot ChartQuery time series rows by listing + date.
 
@@ -58,7 +52,7 @@ def _extract_chart_timeseries_rows(
                 ...
             }
     """
-    pivoted_rows = defaultdict(dict)
+    pivoted_rows: dict[tuple[str, str], dict[str, Any]] = defaultdict(dict)
 
     for chunk in chunks:
         meta = chunk.get("meta", {})
@@ -87,9 +81,7 @@ def _extract_chart_timeseries_rows(
     return list(pivoted_rows.values())
 
 
-def _extract_chart_summary_metrics(
-    chunks: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def _extract_chart_summary_metrics(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Parse ChartQuery summary rows (primary + secondary) grouped by listing + window.
 
@@ -107,7 +99,7 @@ def _extract_chart_summary_metrics(
                 ...
             }
     """
-    summary_rows = defaultdict(dict)
+    summary_rows: dict[tuple[str, str, str], dict[str, Any]] = defaultdict(dict)
 
     for chunk in chunks:
         meta = chunk.get("meta", {})
@@ -143,7 +135,7 @@ def _extract_chart_summary_metrics(
     return list(summary_rows.values())
 
 
-def _extract_list_of_metrics(chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _extract_list_of_metrics(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Parse ListOfMetricsQuery output into overview rows per listing × window.
 
@@ -161,7 +153,7 @@ def _extract_list_of_metrics(chunks: List[Dict[str, Any]]) -> List[Dict[str, Any
                 ...
             }
     """
-    grouped = defaultdict(dict)
+    grouped: dict[tuple[str, str, str], dict[str, Any]] = defaultdict(dict)
 
     for chunk in chunks:
         meta = chunk.get("meta", {})

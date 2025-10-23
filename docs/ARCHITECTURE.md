@@ -219,6 +219,56 @@ def run_insights_poller(account: Account) -> None:
 - Make HTTP calls
 - Transform data (except DB ↔ model mapping)
 
+### Key Supporting Modules
+
+#### Dependencies (`sync_airbnb/dependencies.py`)
+
+**Purpose:** FastAPI dependency injection
+
+```python
+def get_db_engine() -> Generator[Engine, None, None]:
+    """Dependency that provides database engine to route handlers."""
+    yield config.engine
+```
+
+**Usage in routes:**
+```python
+@router.get("/accounts")
+async def list_accounts(engine: Engine = Depends(get_db_engine)):
+    accounts = get_all_accounts(engine)
+    return accounts
+```
+
+#### Validation Helpers (`sync_airbnb/api/routes/_helpers.py`)
+
+**Purpose:** DRY validation functions to reduce code duplication
+
+**Available Helpers:**
+- `validate_account_exists(engine, account_id)` - Returns Account or raises 404
+- `validate_date_range(start_date, end_date)` - Raises 400 if start >= end
+
+**Usage:**
+```python
+account = validate_account_exists(engine, account_id)
+validate_date_range(start_date, end_date)
+```
+
+#### Prometheus Metrics (`sync_airbnb/metrics.py`)
+
+**Purpose:** Centralized metric definitions for observability
+
+**Metric Categories:**
+- HTTP requests (counts, duration, status codes)
+- Database queries (duration, operations, connections)
+- Sync jobs (counts, duration, success/failure rates)
+- Airbnb API calls (duration, retries, rate limits)
+- Errors (by type and component)
+
+**Instrumented Layers:**
+- `services/insights.py` - Sync job metrics
+- `network/http_client.py` - Airbnb API metrics
+- `db/insights.py` - Database operation metrics
+
 ---
 
 ## Multi-Account Architecture
@@ -1002,6 +1052,99 @@ spec:
 
 ---
 
+## Observability & Monitoring
+
+### Prometheus Metrics
+
+The system includes comprehensive Prometheus instrumentation across all layers:
+
+**File:** `sync_airbnb/metrics.py`
+
+Defines 20+ metrics for monitoring:
+- HTTP request counts and duration
+- Database query performance
+- Sync job tracking (duration, success/failure)
+- Airbnb API performance and retry tracking
+- Error rates by component
+
+**Instrumented Components:**
+
+1. **Services Layer** (`services/insights.py`):
+   - Sync job start/completion
+   - Listings processed (success/failure)
+   - Job duration by status
+
+2. **Network Layer** (`network/http_client.py`):
+   - Airbnb API request duration
+   - Request counts by endpoint and status code
+   - Retry attempts
+   - Rate limit hits
+
+3. **Database Layer** (`db/insights.py`):
+   - Query duration by operation
+   - Metrics insert operations
+   - Rows inserted per operation
+
+### Health Endpoints
+
+**File:** `sync_airbnb/api/routes/health.py`
+
+**`GET /health`:**
+- Basic liveness check (always 200 OK)
+- Returns service mode and account ID
+- For Kubernetes liveness probes
+
+**`GET /health/ready`:**
+- Readiness check with DB connectivity test
+- Returns 200 if DB query succeeds
+- Returns 503 if DB unavailable
+- For Kubernetes readiness probes
+
+**`GET /metrics`:**
+- Prometheus metrics endpoint
+- Returns metrics in text format
+- For Prometheus scraping
+
+### Dependency Injection
+
+**File:** `sync_airbnb/dependencies.py`
+
+Provides `get_db_engine()` dependency for FastAPI routes:
+
+```python
+@router.get("/accounts")
+async def list_accounts(engine: Engine = Depends(get_db_engine)):
+    accounts = get_all_accounts(engine)
+    return accounts
+```
+
+**Benefits:**
+- Easier to mock in tests
+- Clear dependency declaration
+- Follows FastAPI best practices
+
+### Validation Helpers
+
+**File:** `sync_airbnb/api/routes/_helpers.py`
+
+DRY validation functions to reduce code duplication:
+
+```python
+def validate_account_exists(engine: Engine, account_id: str) -> Account:
+    """Validate account exists, raise 404 if not."""
+    account = get_account(engine, account_id)
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return account
+
+def validate_date_range(start_date: date, end_date: date) -> None:
+    """Validate start_date < end_date, raise 400 if not."""
+    if start_date >= end_date:
+        raise HTTPException(status_code=400, detail="Invalid date range")
+```
+
+---
+
 ## Security Considerations
 
 ### Credential Storage
@@ -1069,10 +1212,20 @@ sync-airbnb is architected for production scale with:
 - Multi-account support (database-driven config)
 - Horizontal scalability (container-per-account)
 - Operational excellence (Kubernetes operator pattern)
+- Comprehensive observability (Prometheus metrics, health checks)
+- Modern patterns (dependency injection, validation helpers)
 
-The system is ready for small-scale production with P0 issues resolved. For large-scale production (100+ accounts), implement:
-- Kubernetes operator
-- Credential encryption
-- API authentication
-- Observability stack (Prometheus, Grafana)
-- Advanced TimescaleDB features (compression, retention)
+**Production Ready Features:**
+- ✅ Prometheus metrics for monitoring
+- ✅ Health endpoints for Kubernetes probes
+- ✅ Dependency injection for testability
+- ✅ Validation helpers for DRY code
+- ✅ Per-listing error recovery
+- ✅ Intelligent backfill logic
+
+**For large-scale production (100+ accounts), implement:**
+- Kubernetes operator (task file created)
+- Credential validation before account creation (task file created)
+- Job status tracking API (task file created)
+- Data retention policies (task file created)
+- Rate limiting strategy (task file created)

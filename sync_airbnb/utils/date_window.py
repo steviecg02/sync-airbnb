@@ -1,13 +1,14 @@
 """
 Date window calculation logic for Airbnb metrics polling.
 
-Supports aligned Sunday–Saturday windows, lookback/forecast ranges, and 
+Supports aligned Sunday–Saturday windows, lookback/forecast ranges, and
 first-run logic based on configured constants.
 """
 
 import logging
 from datetime import date, timedelta
-from sync_airbnb.config import LOOKBACK_WEEKS, LOOKAHEAD_WEEKS, MAX_LOOKBACK_DAYS
+
+from sync_airbnb.config import LOOKAHEAD_WEEKS, LOOKBACK_WEEKS, MAX_LOOKBACK_DAYS
 
 logger = logging.getLogger(__name__)
 

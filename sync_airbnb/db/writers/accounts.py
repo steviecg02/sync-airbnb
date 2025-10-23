@@ -1,10 +1,12 @@
 import logging
-from datetime import datetime
-from sqlalchemy.engine import Engine
-from sqlalchemy.dialects.postgresql import insert
 
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.engine import Engine
+
+from sync_airbnb import config
 from sync_airbnb.models.account import Account
 from sync_airbnb.schemas.account import AccountCreate, AccountUpdate
+from sync_airbnb.utils.datetime_utils import utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -35,16 +37,18 @@ def create_or_update_account(engine: Engine, account_data: AccountCreate) -> Acc
                 "x_client_version": stmt.excluded.x_client_version,
                 "user_agent": stmt.excluded.user_agent,
                 "is_active": stmt.excluded.is_active,
-                "updated_at": datetime.utcnow(),
-            }
+                "updated_at": utc_now(),
+            },
         )
 
-        stmt = stmt.returning(Account)
-        result = conn.execute(stmt)
+        returning_stmt = stmt.returning(Account)
+        result = conn.execute(returning_stmt)
         account = result.fetchone()
         logger.info(f"Created/updated account {account_data.account_id}")
 
         # Convert row to Account object
+        if account is None:
+            raise RuntimeError(f"Failed to create/update account {account_data.account_id}")
         return Account(**dict(account._mapping))
 
 
@@ -58,16 +62,12 @@ def update_account(engine: Engine, account_id: str, updates: AccountUpdate) -> A
         logger.warning(f"No updates provided for account {account_id}")
         return None
 
-    update_dict["updated_at"] = datetime.utcnow()
+    update_dict["updated_at"] = utc_now()
 
     with engine.begin() as conn:
         from sqlalchemy import update as sa_update
-        stmt = (
-            sa_update(Account)
-            .where(Account.account_id == account_id)
-            .values(**update_dict)
-            .returning(Account)
-        )
+
+        stmt = sa_update(Account).where(Account.account_id == account_id).values(**update_dict).returning(Account)
         result = conn.execute(stmt)
         row = result.fetchone()
         if row:
@@ -80,29 +80,88 @@ def update_account(engine: Engine, account_id: str, updates: AccountUpdate) -> A
 
 def update_last_sync(engine: Engine, account_id: str) -> None:
     """Update the last_sync_at timestamp for an account."""
+    if config.INSIGHTS_DRY_RUN:
+        logger.info(f"[DRY RUN] Would update last_sync_at for account {account_id}")
+        return
+
     with engine.begin() as conn:
         from sqlalchemy import update as sa_update
+
         stmt = (
             sa_update(Account)
             .where(Account.account_id == account_id)
-            .values(last_sync_at=datetime.utcnow(), updated_at=datetime.utcnow())
+            .values(last_sync_at=utc_now(), updated_at=utc_now())
         )
         conn.execute(stmt)
         logger.info(f"Updated last_sync_at for account {account_id}")
 
 
+def soft_delete_account(engine: Engine, account_id: str) -> bool:
+    """
+    Soft delete an account by setting deleted_at timestamp.
+    Returns True if deleted, False if not found.
+
+    Note: Soft-deleted accounts can be restored with restore_account().
+    """
+    with engine.begin() as conn:
+        from sqlalchemy import update as sa_update
+
+        stmt = (
+            sa_update(Account)
+            .where(Account.account_id == account_id)
+            .where(Account.deleted_at.is_(None))  # Only delete if not already deleted
+            .values(deleted_at=utc_now(), updated_at=utc_now())
+        )
+        result = conn.execute(stmt)
+        deleted = result.rowcount > 0
+        if deleted:
+            logger.info(f"Soft deleted account {account_id}")
+        else:
+            logger.warning(f"Account {account_id} not found or already deleted")
+        return deleted
+
+
+def restore_account(engine: Engine, account_id: str) -> bool:
+    """
+    Restore a soft-deleted account by clearing deleted_at timestamp.
+    Returns True if restored, False if not found or not deleted.
+    """
+    with engine.begin() as conn:
+        from sqlalchemy import update as sa_update
+
+        stmt = (
+            sa_update(Account)
+            .where(Account.account_id == account_id)
+            .where(Account.deleted_at.isnot(None))  # Only restore if deleted
+            .values(deleted_at=None, updated_at=utc_now())
+        )
+        result = conn.execute(stmt)
+        restored = result.rowcount > 0
+        if restored:
+            logger.info(f"Restored account {account_id}")
+        else:
+            logger.warning(f"Account {account_id} not found or not deleted")
+        return restored
+
+
 def delete_account(engine: Engine, account_id: str) -> bool:
     """
-    Delete an account. Returns True if deleted, False if not found.
+    Hard delete an account (permanently removes from database).
+    Returns True if deleted, False if not found.
+
+    Warning: This permanently deletes the account. Consider using
+    soft_delete_account() instead.
+
     Note: This will fail if there are foreign key references.
     """
     with engine.begin() as conn:
         from sqlalchemy import delete
+
         stmt = delete(Account).where(Account.account_id == account_id)
         result = conn.execute(stmt)
         deleted = result.rowcount > 0
         if deleted:
-            logger.info(f"Deleted account {account_id}")
+            logger.info(f"Hard deleted account {account_id}")
         else:
             logger.warning(f"Account {account_id} not found for deletion")
         return deleted

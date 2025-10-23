@@ -1,5 +1,6 @@
 import logging
 import os
+
 from sync_airbnb.config import LOG_LEVEL
 
 try:

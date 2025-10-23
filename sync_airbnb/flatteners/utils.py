@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +19,7 @@ def get_first_component(response: dict) -> dict:
     """
     try:
         component = (
-            response.get("data", {})
-            .get("porygon", {})
-            .get("getPerformanceComponents", {})
-            .get("components", [{}])[0]
+            response.get("data", {}).get("porygon", {}).get("getPerformanceComponents", {}).get("components", [{}])[0]
         )
         return component or {}
     except Exception as e:
@@ -30,7 +27,7 @@ def get_first_component(response: dict) -> dict:
         raise ValueError("Could not resolve component structure") from e
 
 
-def extract_numeric_value(value_dict: dict) -> Union[int, float, None]:
+def extract_numeric_value(value_dict: dict) -> int | float | None:
     """
     Extracts a numeric value from a GraphQL numeric wrapper dict.
 
@@ -52,7 +49,7 @@ def extract_numeric_value(value_dict: dict) -> Union[int, float, None]:
     return value_dict.get("longValue")
 
 
-def coerce_number(val: Any) -> Union[int, float, Any]:
+def coerce_number(val: Any) -> int | float | Any:
     """
     Coerce string representations of numbers to int or float, leave other types unchanged.
 

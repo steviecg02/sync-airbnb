@@ -1,100 +1,48 @@
-# Claude Code Instructions for sync-airbnb
+# Claude Instructions for sync-airbnb
 
-**Purpose:** Instructions for future Claude Code sessions working on this project
-**Last Updated:** October 21, 2025
-
----
-
-## First Steps for New Sessions
-
-### 1. Read These Documents First (in order)
-
-1. **README.md** - Project overview and setup instructions
-2. **docs/2025-10-context.md** - October 2025 refactoring session context (what was built)
-3. **docs/ARCHITECTURE.md** - High-level system architecture
-4. **docs/implementation-status.md** - Current state, known issues, production readiness
-5. **CONTRIBUTING.md** - Code standards and development workflow
-
-**Time to read:** ~30 minutes
-
-**Why these?** Understanding the architecture and recent changes prevents duplicate work and misunderstandings.
+**Purpose:** Constraints, standards, and reference documentation for AI assistants working on this project.
 
 ---
 
-### 2. Check Current Issues Status
-
-Before starting ANY work, check:
-
-1. **P0 Critical Issues** - `tasks/p0-critical.md` (5 issues, 10-18 hours)
-2. **P1 High Priority** - `tasks/p1-high.md` (8 issues, 34-49 hours)
-3. **P2 Medium Priority** - `tasks/p2-medium.md` (8 issues, 25-37 hours)
-4. **P3 Low Priority** - `tasks/p3-low.md` (7 issues, 19-29 hours)
-
-**Ask user which priority level to focus on** before implementing anything.
-
----
-
-### 3. Understand Current State
-
-```bash
-# Check git status
-git status
-
-# Check which branch you're on
-git branch
-
-# See recent commits
-git log --oneline -10
-
-# Check if tests are passing
-pytest --collect-only
-
-# Check for import errors
-python -c "import sync_airbnb"
-```
-
----
-
-## Project Overview (Quick Reference)
-
-### What This Project Does
+## What This Project Does
 
 sync-airbnb extracts Airbnb insights data (metrics, conversions, visibility) via private GraphQL endpoints and stores it in a TimescaleDB database with multi-account support.
 
-**Key Features:**
-- Multi-account architecture (database-driven)
-- RESTful API for account management
-- Scheduled background jobs (daily sync at 5:00 UTC)
-- Intelligent backfill (25 weeks first run, 1 week subsequent)
-- Per-listing error recovery
-- Docker containerization
+**Tech Stack:** FastAPI, Uvicorn, SQLAlchemy, Alembic, APScheduler, PostgreSQL + TimescaleDB, Prometheus, Python 3.10+
 
-**Tech Stack:**
-- FastAPI, Uvicorn, SQLAlchemy, Alembic, APScheduler
-- PostgreSQL + TimescaleDB
-- Python 3.10+
+**Key Features:**
+- Multi-account support with database-driven configuration
+- FastAPI dependency injection pattern (`Depends(get_db_engine)`)
+- Comprehensive Prometheus metrics (HTTP, DB, sync jobs, Airbnb API)
+- Health endpoints (`/health`, `/health/ready`, `/metrics`)
+- Validation helper functions for DRY code
+- Per-listing error recovery
+- Intelligent backfill (25 weeks first run, 1 week subsequent)
 
 ---
 
-## Architecture Patterns (Must Follow)
+## Key Documentation
+
+Read these to understand the project:
+
+- **README.md** - Setup and quick start
+- **docs/ARCHITECTURE.md** - System design and data flow
+- **docs/codebase-standards-checklist.md** - Standards we adhere to (use for cross-repo consistency)
+- **CONTRIBUTING.md** - Code standards and testing requirements
+- **tasks/*.md** - Individual task files for remaining work
+
+---
+
+## Architecture Constraints (MUST FOLLOW)
 
 ### 1. Layered Architecture
 
-**ALWAYS** follow this call flow:
-
+**Call flow:**
 ```
 main.py → api/routes/ → services/ → (network/, payloads/, flatteners/, parsers/) → db/ → PostgreSQL
 ```
 
-**NEVER:**
-- Call `db/` directly from `api/routes/` (use `services/` layer)
-- Put business logic in API routes
-- Make HTTP calls outside `network/` layer
-- Skip layers
-
-### 2. Separation of Concerns
-
-Each layer has ONE responsibility:
+**Each layer's responsibility:**
 
 | Layer | Responsibility | Can Do | Cannot Do |
 |-------|---------------|--------|-----------|
@@ -106,9 +54,11 @@ Each layer has ONE responsibility:
 | `parsers/` | Pivot data | Transform row format | Make API calls |
 | `db/` | Database operations | Run SQL queries | Business logic |
 
-### 3. Dependency Injection
+**Never skip layers. Never call database directly from API routes.**
 
-**ALWAYS** pass dependencies as parameters:
+### 2. Dependency Injection
+
+Pass dependencies as parameters:
 
 ```python
 # GOOD
@@ -116,9 +66,9 @@ def save_metrics(engine: Engine, account_id: str, metrics: list[dict]):
     with engine.begin() as conn:
         ...
 
-# BAD (global dependency)
+# BAD - avoid globals
 def save_metrics(account_id: str, metrics: list[dict]):
-    with global_engine.begin() as conn:  # Avoid this
+    with global_engine.begin() as conn:  # Don't do this
         ...
 ```
 
@@ -126,485 +76,297 @@ def save_metrics(account_id: str, metrics: list[dict]):
 
 ---
 
-## Common Tasks
+## Code Standards (MUST FOLLOW)
 
-### Task: Add a New API Endpoint
+### Security
 
-1. **Define Pydantic schema** in `sync_airbnb/schemas/`
-2. **Create route** in `sync_airbnb/api/routes/`
-3. **Implement service function** in `sync_airbnb/services/`
-4. **Add database function** in `sync_airbnb/db/readers/` or `db/writers/`
-5. **Write tests** in `tests/api/`
-6. **Update OpenAPI docs** (add docstrings with examples)
+- ❌ **Never hardcode secrets** - Use environment variables
+- ❌ **Never commit .env files** - Add to .gitignore
+- ✅ **Always validate inputs** - Use Pydantic field validators
+- ✅ **Use API authentication** - All endpoints except `/health`
 
-**Example:**
-```python
-# 1. Schema (sync_airbnb/schemas/sync_job.py)
-class SyncJobResponse(BaseModel):
-    job_id: str
-    status: str
-    account_id: str
+### Type Safety
 
-# 2. Route (sync_airbnb/api/routes/sync_jobs.py)
-@router.get("/sync-jobs/{job_id}", response_model=SyncJobResponse)
-async def get_sync_job(job_id: str):
-    """Get sync job status."""
-    job = get_sync_job_by_id(engine, job_id)
-    if not job:
-        raise HTTPException(status_code=404)
-    return job
+- ✅ **Type annotate all functions** - Use mypy
+- ✅ **Use `Type | None` not `Optional[Type]`** - Python 3.10+ syntax
+- ✅ **Add None checks** - Before accessing optional values
 
-# 3. Service function (if needed for complex logic)
-# 4. Database function (sync_airbnb/db/readers/sync_jobs.py)
-def get_sync_job_by_id(engine: Engine, job_id: str) -> SyncJob | None:
-    with engine.connect() as conn:
-        stmt = select(SyncJob).where(SyncJob.job_id == job_id)
-        result = conn.execute(stmt)
-        row = result.fetchone()
-        if row:
-            return SyncJob(**dict(row._mapping))
-        return None
+### Error Handling
 
-# 5. Test (tests/api/test_sync_jobs.py)
-def test_get_sync_job_returns_job():
-    response = client.get(f"/api/v1/sync-jobs/{job_id}")
-    assert response.status_code == 200
-```
+- ❌ **Never use bare `except:`** - Use specific exception types
+- ✅ **Log with context** - Include account_id, listing_id, request_id
+- ✅ **Per-item error recovery** - One failure doesn't break entire batch
+- ✅ **Structured errors** - `{"error": {"code", "message", "details", "request_id"}}`
 
----
+### Database
 
-### Task: Add a New Database Table
+- ✅ **Connection pooling** - `pool_pre_ping=True`, `pool_recycle=3600`
+- ✅ **Indexes on foreign keys** - And columns used in WHERE clauses
+- ✅ **Soft delete** - Use `deleted_at` timestamp, don't hard delete user data
+- ✅ **Test migrations** - Both upgrade and downgrade paths
 
-1. **Create SQLAlchemy model** in `sync_airbnb/models/`
-2. **Generate migration** with `alembic revision --autogenerate -m "description"`
-3. **Review migration** (check types, indexes, constraints)
-4. **Add TimescaleDB hypertable** if time-series (manually in migration)
-5. **Apply migration** with `alembic upgrade head`
-6. **Test rollback** with `alembic downgrade -1` then `alembic upgrade head`
-7. **Create reader/writer functions** in `sync_airbnb/db/`
+### Datetime Handling
 
-**Example:**
-```python
-# 1. Model (sync_airbnb/models/sync_job.py)
-from sqlalchemy import Column, String, DateTime, Integer
-from sqlalchemy.orm import declarative_base
+- ❌ **Never use `datetime.now()` or `datetime.utcnow()`**
+- ✅ **Always use `utc_now()`** - From `sync_airbnb.utils.datetime_utils`
+- ✅ **Always timezone-aware** - `datetime.now(timezone.utc)`
+- ✅ **Always store in UTC** - Database columns use `DateTime(timezone=True)`
 
-Base = declarative_base()
+### Logging
 
-class SyncJob(Base):
-    __tablename__ = "sync_jobs"
-    __table_args__ = {"schema": "airbnb"}
+- ❌ **Never use `print()`** - Use `logger.info/error/warning`
+- ❌ **Never use emoji in logs** - Breaks JSON parsers
+- ✅ **Include context** - account_id, listing_id, request_id
+- ✅ **Log at appropriate level** - ERROR for failures, INFO for milestones
 
-    job_id = Column(String(36), primary_key=True)
-    account_id = Column(String(255), nullable=False)
-    status = Column(String(50), nullable=False)
-    created_at = Column(DateTime, nullable=False)
+### API Design
 
-# 2. Generate migration
-# $ alembic revision --autogenerate -m "add sync_jobs table"
+- ✅ **OpenAPI documentation** - Comprehensive docs with examples
+- ✅ **Paginate lists** - Default 50, max 100 items
+- ✅ **Version URLs** - `/api/v1/...`
+- ✅ **Request ID tracking** - Via middleware, in response headers
 
-# 3. Review migration (alembic/versions/xxx_add_sync_jobs_table.py)
-def upgrade() -> None:
-    op.create_table(
-        'sync_jobs',
-        sa.Column('job_id', sa.String(36), nullable=False),
-        sa.Column('account_id', sa.String(255), nullable=False),
-        sa.Column('status', sa.String(50), nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.PrimaryKeyConstraint('job_id'),
-        schema='airbnb'
-    )
+### Testing
 
-    # 4. Add indexes (manual)
-    op.create_index('idx_sync_jobs_account', 'sync_jobs', ['account_id'], schema='airbnb')
+- ✅ **Run before committing** - `pytest`, `mypy`, `ruff check`, `ruff format`
+- ✅ **Mock external dependencies** - APIs, database in unit tests
+- ✅ **Aim for >80% coverage** - >90% for core modules
+- ✅ **Update imports after refactoring** - Use `sync_airbnb.*` package paths
 
-# 5. Apply
-# $ alembic upgrade head
+### Threading
 
-# 6. Test rollback
-# $ alembic downgrade -1
-# $ alembic upgrade head
-```
-
----
-
-### Task: Fix Failing Tests
-
-**Current state:** 15 tests failing due to import path refactoring.
-
-**Steps:**
-1. Run `pytest -v` to see failures
-2. Fix import paths in test files:
-   ```python
-   # OLD (broken)
-   from network.http_client import make_request
-   @patch("network.http_client.requests.post")
-
-   # NEW (correct)
-   from sync_airbnb.network.http_client import make_request
-   @patch("sync_airbnb.network.http_client.requests.post")
-   ```
-3. Run tests again: `pytest -v`
-4. If still failing, check for missing fixtures or mock paths
-
-**See:** `tasks/p0-critical.md` Issue 2 for details.
-
----
-
-### Task: Add New Metric to Sync
-
-1. **Identify GraphQL query** (ChartQuery or ListOfMetricsQuery)
-2. **Add metric to METRIC_QUERIES** in `sync_airbnb/services/insights.py`
-3. **Update flattener** in `sync_airbnb/flatteners/insights.py`
-4. **Update parser** in `sync_airbnb/parsers/insights.py`
-5. **Add database column** via Alembic migration
-6. **Update tests** in `tests/flatteners/` and `tests/parsers/`
-
----
-
-## Testing Requirements
-
-### Before ANY commit:
-
-```bash
-# 1. Run tests
-pytest
-
-# 2. Check coverage (should be >80%)
-pytest --cov=sync_airbnb --cov-report=term-missing
-
-# 3. Type checking
-mypy sync_airbnb/
-
-# 4. Linting
-ruff check .
-
-# 5. Format code
-ruff format .
-```
-
-### Test Standards
-
-- **Unit tests:** Mock all external dependencies (API calls, DB)
-- **Integration tests:** Real database (test schema), mocked APIs
-- **Test naming:** `test_<function>_<scenario>_<expected>`
-- **Coverage:** >80% overall, >90% for core modules
-
-**Example:**
-```python
-def test_create_account_with_valid_data_returns_201():
-    """Test creating account with valid credentials."""
-    response = client.post("/api/v1/accounts", json={...})
-    assert response.status_code == 201
-    assert response.json()["account_id"] == "123"
-
-def test_create_account_with_invalid_cookie_returns_400():
-    """Test creating account with invalid credentials fails."""
-    response = client.post("/api/v1/accounts", json={...})
-    assert response.status_code == 400
-```
+- ❌ **Never use `daemon=True` for data operations**
+- ✅ **Implement graceful shutdown** - Signal handlers, thread tracking
+- ✅ **Non-daemon threads** - Track in list, join with timeout on shutdown
 
 ---
 
 ## What NOT to Do
 
-### 1. DO NOT Create Unnecessary Files
+### File Creation
 
-- **DO NOT** create documentation files unless explicitly requested
-- **DO NOT** create README files in subdirectories
-- **DO NOT** create example files or templates
-- **ALWAYS** prefer editing existing files over creating new ones
+- ❌ **Don't create unnecessary files** - Especially documentation
+- ❌ **Don't create README files in subdirectories**
+- ❌ **Don't create example/template files**
+- ✅ **Always prefer editing existing files** - Over creating new ones
 
-### 2. DO NOT Use Emojis
+### Emoji Usage
 
-- **DO NOT** add emojis to logs (breaks JSON parsers)
-- **DO NOT** add emojis to comments or docstrings
-- **ONLY** use emojis if user explicitly requests them
+- ❌ **Don't add emoji to logs** - Breaks JSON log parsers
+- ❌ **Don't add emoji to comments/docstrings**
+- ✅ **Only use emoji if user explicitly requests**
 
-See `tasks/p2-medium.md` Issue 14 for details.
+### Architecture Violations
 
-### 3. DO NOT Hardcode Secrets
+- ❌ **Don't call database from API routes** - Use services layer
+- ❌ **Don't put business logic in HTTP client**
+- ❌ **Don't skip the service layer**
+- ❌ **Don't create multiple entry points** - Use `main.py` only
 
-- **DO NOT** hardcode API keys, passwords, tokens
-- **ALWAYS** use environment variables
-- **ALWAYS** add to `.env.example` with placeholder values
+### Error Handling
 
-See `tasks/p0-critical.md` Issues 4 and 5 for details.
-
-### 4. DO NOT Skip Authentication
-
-- **DO NOT** create endpoints without authentication
-- **ALWAYS** add `Security(verify_api_key)` dependency
-- **Exception:** Health check endpoint can be public
-
-See `tasks/p0-critical.md` Issue 1 for details.
-
-### 5. DO NOT Use Print Statements
-
-- **DO NOT** use `print()` in production code
-- **ALWAYS** use `logger.info()`, `logger.error()`, etc.
-- **ALWAYS** include context in logs (account_id, request_id, etc.)
-
-### 6. DO NOT Break Layered Architecture
-
-- **DO NOT** call database directly from API routes
-- **DO NOT** put business logic in HTTP client
-- **DO NOT** skip the service layer
-- **ALWAYS** follow: `api → services → (network/flatteners/parsers) → db`
-
-### 7. DO NOT Use Bare Except
-
-```python
-# BAD
-try:
-    do_something()
-except:  # NEVER do this
-    pass
-
-# GOOD
-try:
-    do_something()
-except ValueError as e:
-    logger.error(f"Invalid value: {e}", exc_info=True)
-    raise
-```
-
-### 8. DO NOT Create Multiple Entry Points
-
-- **DO NOT** create standalone scripts that bypass `main.py`
-- **ALWAYS** use `uvicorn sync_airbnb.main:app` as entry point
-- **Exception:** Migration scripts, one-off admin tools
-
-See `tasks/p1-high.md` Issue 11 for details.
+- ❌ **Don't use bare `except:`** - Catches too much
+- ❌ **Don't silence errors** - Always log, never `pass`
+- ❌ **Don't lose context** - Include account_id, listing_id in logs
 
 ---
 
-## Development Workflow
+## Quick Reference
 
-### Starting Work
+### Entry Point
+- **Main:** `sync_airbnb/main.py`
 
-1. **Read relevant documentation** (ARCHITECTURE.md, implementation-status.md)
-2. **Check current branch:** `git branch`
-3. **Pull latest:** `git pull origin main`
-4. **Create feature branch:** `git checkout -b feature/your-feature`
-5. **Set up environment:**
-   ```bash
-   make venv
-   source venv/bin/activate
-   docker-compose up -d postgres
-   alembic upgrade head
-   python create_account.py
-   ```
+### Configuration
+- **Config:** `sync_airbnb/config.py`
+- **Environment:** `.env` (not committed), `.env.example` (committed)
 
-### Making Changes
+### API Routes
+- **Accounts:** `sync_airbnb/api/routes/accounts.py`
+- **Metrics:** `sync_airbnb/api/routes/metrics.py`
+- **Health:** `sync_airbnb/api/routes/health.py`
 
-1. **Write tests first** (optional but recommended)
-2. **Implement feature** following architecture patterns
-3. **Run tests:** `pytest`
-4. **Check types:** `mypy sync_airbnb/`
-5. **Lint:** `ruff check .`
-6. **Format:** `ruff format .`
+### Services
+- **Sync orchestration:** `sync_airbnb/services/insights.py`
+- **Scheduler:** `sync_airbnb/services/scheduler.py`
 
-### Committing
+### Database
+- **Models:** `sync_airbnb/models/`
+- **Readers:** `sync_airbnb/db/readers/`
+- **Writers:** `sync_airbnb/db/writers/`
+- **Migrations:** `alembic/versions/`
 
-1. **Stage changes:** `git add .`
-2. **Commit with descriptive message:**
-   ```bash
-   git commit -m "Add job status tracking API
+### Data Pipeline
+- **HTTP client:** `sync_airbnb/network/http_client.py`
+- **Payloads:** `sync_airbnb/payloads/insights.py`
+- **Flatteners:** `sync_airbnb/flatteners/insights.py`
+- **Parsers:** `sync_airbnb/parsers/insights.py`
 
-   - Create sync_jobs table with status tracking
-   - Add GET /api/v1/sync-jobs/{job_id} endpoint
-   - Update run_insights_poller to create/update jobs
-   - Add tests for job tracking (90% coverage)
+### Utilities
+- **Datetime:** `sync_airbnb/utils/datetime_utils.py`
+- **Date windows:** `sync_airbnb/utils/date_window.py`
+- **Airbnb sync:** `sync_airbnb/utils/airbnb_sync.py`
 
-   Fixes P1 Issue 7"
-   ```
-
-### Testing Locally
-
-```bash
-# Start service
-uvicorn sync_airbnb.main:app --reload
-
-# Test health check
-curl http://localhost:8000/health
-
-# Test API
-curl http://localhost:8000/api/v1/accounts
-
-# Trigger manual sync
-curl -X POST http://localhost:8000/api/v1/accounts/123/sync
-
-# Check logs
-docker-compose logs -f app
-```
+### New Modules (Added October 2025)
+- **Dependencies:** `sync_airbnb/dependencies.py` - FastAPI dependency injection (e.g., `get_db_engine()`)
+- **Validation Helpers:** `sync_airbnb/api/routes/_helpers.py` - DRY validation functions (`validate_account_exists`, `validate_date_range`)
+- **Metrics:** `sync_airbnb/metrics.py` - Prometheus metric definitions (20+ metrics across all layers)
 
 ---
 
-## Production Readiness Checklist
+## Service Modes
 
-Before deploying to production, ensure:
+Controlled by `MODE` environment variable:
 
-### Security
-- [ ] API authentication implemented (P0-1)
-- [ ] Secrets moved to environment variables (P0-4)
-- [ ] .env file removed from git history (P0-5)
-- [ ] Input validation on all endpoints
-- [ ] HTTPS enforced
-
-### Reliability
-- [ ] All tests passing (P0-2)
-- [ ] JSON schema validation (P0-3)
-- [ ] Graceful shutdown implemented (P1-8)
-- [ ] Per-listing error recovery (P1-9)
-- [ ] Rate limiting configured (P1-10)
-
-### Observability
-- [ ] Job status tracking (P1-7)
-- [ ] Structured logging (no emojis)
-- [ ] Request ID tracking (P2-18)
-- [ ] Metrics instrumentation
-- [ ] Health check verifies DB and scheduler
-
-### Performance
-- [ ] Database connection pool tuned (P2-15)
-- [ ] Missing indexes added (P1-13)
-- [ ] Query performance tested
+- **admin** - API only (account management), no scheduler
+- **worker** - Scheduler only (requires `ACCOUNT_ID`), no API
+- **hybrid** - Both API and scheduler (for local dev)
 
 ---
 
-## Common Questions
-
-### Q: How do I run the service locally?
+## Testing Commands
 
 ```bash
-# Option 1: Direct (for development)
-make venv
-source venv/bin/activate
-docker-compose up -d postgres
-alembic upgrade head
-python create_account.py
-uvicorn sync_airbnb.main:app --reload
-
-# Option 2: Docker (for testing containerization)
-docker-compose up -d
-docker-compose logs -f app
-```
-
-### Q: How do I create a new database migration?
-
-```bash
-# 1. Modify model in sync_airbnb/models/
-# 2. Generate migration (ALWAYS use autogenerate)
-alembic revision --autogenerate -m "add sync_jobs table"
-
-# 3. Review generated file in alembic/versions/
-# 4. Apply migration
-alembic upgrade head
-
-# 5. Test rollback
-alembic downgrade -1
-alembic upgrade head
-```
-
-### Q: How do I add a new API endpoint?
-
-See "Common Tasks" → "Add a New API Endpoint" above.
-
-### Q: Where should business logic go?
-
-**Services layer** (`sync_airbnb/services/`).
-
-API routes should be thin and delegate to services.
-
-### Q: How do I test my changes?
-
-```bash
-# Run all tests
+# Run tests
 pytest
 
-# Run specific test file
-pytest tests/api/test_accounts.py
-
-# Run specific test
-pytest tests/api/test_accounts.py::test_create_account
-
 # Run with coverage
-pytest --cov=sync_airbnb --cov-report=html
+pytest --cov=sync_airbnb --cov-report=term-missing
+
+# Type checking
+mypy sync_airbnb/
+
+# Linting
+ruff check .
+
+# Format code
+ruff format .
+
+# Run all checks
+make test  # or pytest && mypy sync_airbnb/ && ruff check .
 ```
 
-### Q: What's the difference between MODE=admin, worker, and hybrid?
+---
 
-- **admin**: Only runs account management API (no scheduler)
-- **worker**: Only runs scheduler for single account (requires ACCOUNT_ID)
-- **hybrid**: Runs both API and scheduler (for local dev)
+## Database Commands
 
-See `docs/ARCHITECTURE.md` → "Service Modes" for details.
+```bash
+# Create migration
+alembic revision --autogenerate -m "description"
 
-### Q: How do I handle errors in the service layer?
+# Apply migrations
+alembic upgrade head
+
+# Rollback one migration
+alembic downgrade -1
+
+# Show current revision
+alembic current
+```
+
+---
+
+## Git Workflow
+
+```bash
+# Check status
+git status
+
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Commit with descriptive message
+git commit -m "Add feature X
+
+- Detailed change 1
+- Detailed change 2
+
+Fixes issue Y"
+```
+
+---
+
+## Common Patterns
+
+### Error Handling in Services
 
 ```python
-import logging
-
-logger = logging.getLogger(__name__)
-
 def run_insights_poller(account: Account) -> dict:
-    """Run insights sync with error handling."""
     results = {"succeeded": 0, "failed": 0, "errors": []}
 
     for listing_id in listings:
         try:
-            # Process listing
             process_listing(listing_id)
             results["succeeded"] += 1
-
         except Exception as e:
-            # Log error with context
             logger.error(
                 f"Listing {listing_id} failed",
                 extra={"listing_id": listing_id, "error": str(e)},
                 exc_info=True
             )
             results["failed"] += 1
-            results["errors"].append({
-                "listing_id": listing_id,
-                "error": str(e)
-            })
-            # Continue to next listing
-            continue
+            results["errors"].append({"listing_id": listing_id, "error": str(e)})
+            continue  # Don't break entire sync
 
     return results
 ```
 
+### Database Transactions
+
+```python
+# Read (no transaction needed)
+def get_account(engine: Engine, account_id: str) -> Account | None:
+    with engine.connect() as conn:
+        stmt = select(Account).where(Account.account_id == account_id)
+        result = conn.execute(stmt)
+        ...
+
+# Write (use begin() for auto-commit)
+def create_account(engine: Engine, account: AccountCreate) -> Account:
+    with engine.begin() as conn:  # Auto-commits on success
+        stmt = insert(Account).values(...)
+        result = conn.execute(stmt)
+        ...
+```
+
+### API Endpoints
+
+```python
+@router.post(
+    "/resource",
+    response_model=ResourceResponse,
+    status_code=201,
+    summary="Short description",
+    description="Long description with examples",
+    responses={
+        201: {"description": "Success", "content": {"application/json": {"example": {...}}}},
+        400: {"description": "Bad request", "content": {"application/json": {"example": {...}}}},
+    },
+)
+async def create_resource(resource: ResourceCreate = Body(..., example={...})):
+    """Create resource."""
+    result = service_function(config.engine, resource)
+    return ResourceResponse.model_validate(result)
+```
+
 ---
 
-## Quick Reference Links
+## Files to Keep Updated
 
-- **Main entry point:** `sync_airbnb/main.py`
-- **Configuration:** `sync_airbnb/config.py`
-- **Account CRUD:** `sync_airbnb/api/routes/accounts.py`
-- **Sync orchestration:** `sync_airbnb/services/insights.py`
-- **Scheduler:** `sync_airbnb/services/scheduler.py`
-- **Database models:** `sync_airbnb/models/`
-- **Database operations:** `sync_airbnb/db/readers/`, `sync_airbnb/db/writers/`
-- **Migrations:** `alembic/versions/`
+When making changes, update these if relevant:
+
+- **ARCHITECTURE.md** - If architecture changes
+- **codebase-standards-checklist.md** - If adding new standards
+- **README.md** - If setup process changes
+- **CLAUDE.md** (this file) - If constraints/patterns change
 
 ---
 
 ## Summary
 
-When starting a new session:
+- **Read:** ARCHITECTURE.md, codebase-standards-checklist.md
+- **Follow:** Layered architecture, type safety, structured errors
+- **Never:** Hardcode secrets, use bare except, skip layers, add emoji to logs
+- **Always:** Test before commit, log with context, use timezone-aware datetimes
+- **Ask:** If unclear on architecture or standards
 
-1. ✅ Read documentation first (README, ARCHITECTURE, implementation-status)
-2. ✅ Check current issues (tasks/p0-critical.md, p1-high.md, etc.)
-3. ✅ Ask user which priority to focus on
-4. ✅ Follow layered architecture strictly
-5. ✅ Write tests for all changes
-6. ✅ Do NOT create unnecessary files
-7. ✅ Do NOT use emojis
-8. ✅ Do NOT hardcode secrets
-9. ✅ Do NOT skip authentication
-
-**When in doubt, ask the user before implementing anything.**
-
-Good luck! 🚀 (okay, emojis in CLAUDE.md are fine 😉)
+When in doubt, ask the user before implementing!

@@ -29,7 +29,7 @@ def build_headers(
         dict: Headers dictionary ready for requests
     """
     if airbnb_api_key is None:
-        airbnb_api_key = get_env("AIRBNB_API_KEY")
+        airbnb_api_key = get_env("AIRBNB_API_KEY") or ""
 
     return {
         # Session + Auth
@@ -55,8 +55,8 @@ def build_headers(
 
 # Backwards compatibility: default headers from environment variables
 HEADERS = build_headers(
-    airbnb_cookie=get_env("AIRBNB_COOKIE"),
-    x_client_version=get_env("X_CLIENT_VERSION"),
-    x_airbnb_client_trace_id=get_env("X_AIRBNB_CLIENT_TRACE_ID"),
-    user_agent=get_env("USER_AGENT", required=False, default="Mozilla/5.0"),
+    airbnb_cookie=get_env("AIRBNB_COOKIE") or "",
+    x_client_version=get_env("X_CLIENT_VERSION") or "",
+    x_airbnb_client_trace_id=get_env("X_AIRBNB_CLIENT_TRACE_ID") or "",
+    user_agent=get_env("USER_AGENT", required=False, default="Mozilla/5.0") or "Mozilla/5.0",
 )

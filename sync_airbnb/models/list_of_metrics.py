@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Text, Float, Integer, Date, text, ForeignKey
+from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String, Text, text
+
 from sync_airbnb.config import SCHEMA
 from sync_airbnb.models.base import Base
 

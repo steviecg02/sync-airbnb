@@ -63,6 +63,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sync_airbnb_test
           MODE: admin  # Set to admin mode to avoid requiring ACCOUNT_ID
+          # Dummy credentials for tests (not actually used, but required by config.py)
+          AIRBNB_COOKIE: "test_cookie"
+          X_CLIENT_VERSION: "test_version"
+          X_AIRBNB_CLIENT_TRACE_ID: "test_trace_id"
+          USER_AGENT: "test_user_agent"
         run: |
           pytest --cov=sync_airbnb --cov-report=xml --cov-report=term-missing
 

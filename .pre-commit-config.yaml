@@ -3,6 +3,7 @@ repos:
     rev: 24.4.2
     hooks:
       - id: black
+        args: ["--line-length=120"]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.4.4
@@ -19,6 +20,8 @@ repos:
           - pytest
           - types-requests
           - sqlalchemy[mypy]==2.0.35
+          - pydantic>=2.0
+          - prometheus-client
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0

@@ -61,6 +61,8 @@ select = [
 ]
 ignore = [
     "E501",  # line too long (handled by black)
+    "B008",  # function call in argument defaults (FastAPI Depends/Query/Body pattern)
+    "B904",  # raise from within except (re-raising is intentional)
 ]
 
 [tool.black]

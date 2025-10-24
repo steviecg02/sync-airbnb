@@ -96,6 +96,7 @@ jobs:
           DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
           LOG_LEVEL=INFO
           MODE=admin
+          ACCOUNT_ID=test_account_id
           AIRBNB_COOKIE=test_cookie
           AIRBNB_API_KEY=test_api_key
           X_CLIENT_VERSION=test_version

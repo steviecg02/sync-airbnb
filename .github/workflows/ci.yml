@@ -104,17 +104,17 @@ jobs:
           EOF
 
       - name: Build Docker image
-        run: docker-compose build
+        run: docker compose build
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for application to be ready
         run: |
           echo "Waiting for application to start..."
           timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || {
             echo "Application failed to start. Container logs:"
-            docker-compose logs app
+            docker compose logs app
             exit 1
           }
 
@@ -124,7 +124,7 @@ jobs:
           echo "Health response: $response"
           echo "$response" | grep -q '"status":"ok"' || {
             echo "Health check failed"
-            docker-compose logs app
+            docker compose logs app
             exit 1
           }
 
@@ -134,13 +134,13 @@ jobs:
           echo "Ready response: $response"
           echo "$response" | grep -q '"status":"ready"' || {
             echo "Ready check failed"
-            docker-compose logs app
+            docker compose logs app
             exit 1
           }
 
       - name: Check for startup errors in logs
         run: |
-          logs=$(docker-compose logs app)
+          logs=$(docker compose logs app)
           if echo "$logs" | grep -iE "error|exception|traceback" | grep -v "continue-on-error"; then
             echo "Found errors in application logs:"
             echo "$logs"
@@ -149,7 +149,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
 
   build:
     runs-on: ubuntu-latest

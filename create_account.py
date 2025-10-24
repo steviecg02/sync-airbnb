@@ -23,7 +23,7 @@ account = AccountCreate(
 # Insert/update account directly in database
 result = create_or_update_account(engine, account)
 
-print(f"✅ Account {result.account_id} created/updated successfully")
+print(f"Account {result.account_id} created/updated successfully")
 print(f"   Active: {result.is_active}")
 print(f"   Last sync: {result.last_sync_at}")
 print(f"   Created: {result.created_at}")

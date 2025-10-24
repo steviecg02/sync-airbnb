@@ -82,9 +82,78 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  build:
+  docker-test:
     runs-on: ubuntu-latest
     needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create test .env file
+        run: |
+          cat > .env << EOF
+          DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+          LOG_LEVEL=INFO
+          MODE=admin
+          AIRBNB_COOKIE=test_cookie
+          AIRBNB_API_KEY=test_api_key
+          X_CLIENT_VERSION=test_version
+          X_AIRBNB_CLIENT_TRACE_ID=test_trace_id
+          USER_AGENT=test_user_agent
+          EOF
+
+      - name: Build Docker image
+        run: docker-compose build
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for application to be ready
+        run: |
+          echo "Waiting for application to start..."
+          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || {
+            echo "Application failed to start. Container logs:"
+            docker-compose logs app
+            exit 1
+          }
+
+      - name: Test health endpoint
+        run: |
+          response=$(curl -s http://localhost:8000/health)
+          echo "Health response: $response"
+          echo "$response" | grep -q '"status":"ok"' || {
+            echo "Health check failed"
+            docker-compose logs app
+            exit 1
+          }
+
+      - name: Test ready endpoint
+        run: |
+          response=$(curl -s http://localhost:8000/health/ready)
+          echo "Ready response: $response"
+          echo "$response" | grep -q '"status":"ready"' || {
+            echo "Ready check failed"
+            docker-compose logs app
+            exit 1
+          }
+
+      - name: Check for startup errors in logs
+        run: |
+          logs=$(docker-compose logs app)
+          if echo "$logs" | grep -iE "error|exception|traceback" | grep -v "continue-on-error"; then
+            echo "Found errors in application logs:"
+            echo "$logs"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose down -v
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, docker-test]
     if: github.ref == 'refs/heads/main'
 
     permissions:

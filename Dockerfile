@@ -46,6 +46,7 @@ COPY sync_airbnb/ ./sync_airbnb/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
 COPY entrypoint.sh .
+COPY create_account.py .
 
 # Make entrypoint executable
 RUN chmod +x entrypoint.sh

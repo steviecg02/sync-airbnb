@@ -26,7 +26,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
       LOG_LEVEL: INFO
-      MODE: hybrid
+      MODE: ${MODE:-hybrid}
       ACCOUNT_ID: ${ACCOUNT_ID}
       AIRBNB_COOKIE: ${AIRBNB_COOKIE}
       AIRBNB_API_KEY: ${AIRBNB_API_KEY}

@@ -6,6 +6,7 @@ periodically fetch and sync Airbnb metrics for a specific account.
 """
 
 import logging
+from datetime import datetime, timezone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -18,10 +19,14 @@ logger = logging.getLogger(__name__)
 
 def run_sync_on_startup():
     """
-    Run sync on worker startup if this is the first sync for the account.
+    Run sync on worker startup if needed.
 
-    This enables the Kubernetes Operator pattern where workers auto-sync
-    immediately after being created for new accounts.
+    Only runs sync if:
+    1. Never synced before (last_sync_at is None), OR
+    2. Last sync was before today's scheduled cron time AND cron already ran (or should have)
+
+    This enables the Kubernetes Operator pattern while avoiding duplicate syncs
+    when containers restart near the scheduled cron time.
     """
     try:
         if config.ACCOUNT_ID is None:
@@ -39,14 +44,41 @@ def run_sync_on_startup():
             logger.warning(f"Account {config.ACCOUNT_ID} is inactive, skipping startup sync")
             return
 
+        # Determine if sync is needed
         if account.last_sync_at is None:
+            # Never synced - run now
             logger.info(f"First sync for account {config.ACCOUNT_ID}, running startup sync...")
             run_insights_poller(account, trigger="startup")
             logger.info(f"Startup sync completed for account {config.ACCOUNT_ID}")
         else:
-            logger.info(
-                f"Account {config.ACCOUNT_ID} already synced (last: {account.last_sync_at}), skipping startup sync"
+            # Check if we need to run based on cron schedule
+            now = datetime.now(timezone.utc)
+            today = now.date()
+            cron_time_today = now.replace(
+                hour=config.SYNC_CRON_HOUR, minute=config.SYNC_CRON_MINUTE, second=0, microsecond=0
             )
+
+            if account.last_sync_at.date() < today:
+                # Last sync was yesterday or earlier
+                if now < cron_time_today:
+                    # Cron hasn't run yet today - let it handle it
+                    logger.info(
+                        f"Last sync was {account.last_sync_at.strftime('%Y-%m-%d %H:%M:%S')} UTC, "
+                        f"but cron will run at {cron_time_today.strftime('%Y-%m-%d %H:%M:%S')} UTC, skipping startup sync"
+                    )
+                else:
+                    # Cron already ran (or should have) - we missed it, sync now
+                    logger.info(
+                        f"Last sync was {account.last_sync_at.strftime('%Y-%m-%d %H:%M:%S')} UTC, "
+                        f"and cron already ran at {cron_time_today.strftime('%H:%M')} UTC, running startup sync"
+                    )
+                    run_insights_poller(account, trigger="startup")
+            else:
+                # Already synced today
+                logger.info(
+                    f"Account {config.ACCOUNT_ID} already synced today at "
+                    f"{account.last_sync_at.strftime('%Y-%m-%d %H:%M:%S')} UTC, skipping startup sync"
+                )
 
     except Exception as e:
         logger.error(f"Error in startup sync for account {config.ACCOUNT_ID}: {e}", exc_info=True)
@@ -94,16 +126,19 @@ def setup_scheduler(scheduler: BackgroundScheduler):
     Args:
         scheduler: APScheduler BackgroundScheduler instance
     """
-    # Run insights sync daily at 5 AM UTC (1 AM EDT / 12 AM EST)
+    # Run insights sync daily at configured time (default 5:00 AM UTC)
     scheduler.add_job(
         sync_insights_job,
         trigger="cron",
-        hour=5,
-        minute=0,
+        hour=config.SYNC_CRON_HOUR,
+        minute=config.SYNC_CRON_MINUTE,
         timezone="UTC",
         id="sync_insights",
         name="Sync Airbnb Insights",
         replace_existing=True,
     )
 
-    logger.info("Scheduler configured with insights sync job (daily at 5:00 UTC)")
+    logger.info(
+        f"Scheduler configured with insights sync job "
+        f"(daily at {config.SYNC_CRON_HOUR:02d}:{config.SYNC_CRON_MINUTE:02d} UTC)"
+    )

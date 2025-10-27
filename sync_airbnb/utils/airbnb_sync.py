@@ -132,7 +132,18 @@ class AirbnbSync:
         if self.debug:
             logger.debug(f"[{query_type}] Payload:\n%s", json.dumps(payload, indent=2))
 
-        response = post_with_retry(url=url, headers=self.headers, json=payload)
+        # Build rich context string for logging
+        if query_type == "ListingsSectionQuery":
+            context = f"{query_type}"
+        else:
+            window_days = (end_date - start_date).days if start_date and end_date else 0
+            # Format: ChartQuery|Listing_ID_Name|METRIC_TYPE|start_to_end|Nd
+            context = (
+                f"{query_type}|Listing_{listing_id}_{listing_name.replace(' ', '_')}|"
+                f"{metric_type}|{start_date}_to_{end_date}|{window_days}d"
+            )
+
+        response = post_with_retry(url=url, headers=self.headers, json=payload, context=context)
 
         if self.debug:
             logger.debug(f"[{query_type}] Response:\n%s", json.dumps(response, indent=2))

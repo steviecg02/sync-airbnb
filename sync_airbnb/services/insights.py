@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 from datetime import date
 from typing import Any
@@ -37,7 +38,9 @@ METRIC_QUERIES = {
 }
 
 
-def run_insights_poller(account: Account, scrape_day: date | None = None, trigger: str = "manual") -> dict[str, Any]:
+def run_insights_poller(
+    account: Account, scrape_day: date | None = None, trigger: str = "manual", force_full: bool = False
+) -> dict[str, Any]:
     """
     Executes the full Airbnb insights polling workflow for a specific account.
 
@@ -50,6 +53,7 @@ def run_insights_poller(account: Account, scrape_day: date | None = None, trigge
         account (Account): Account object with credentials and last_sync_at timestamp
         scrape_day (date, optional): The logical "today" date. Defaults to date.today().
         trigger (str): How the sync was triggered (manual, scheduled, startup)
+        force_full (bool): Force full backfill (ignore last_sync_at). Defaults to False.
 
     Returns:
         dict: Summary of sync results with counts and errors:
@@ -70,10 +74,10 @@ def run_insights_poller(account: Account, scrape_day: date | None = None, trigge
 
     logger.info(f"Starting Airbnb Insights Poller for account {account.account_id}")
 
-    # Calculate polling window based on whether this is first run
-    is_first_run = account.last_sync_at is None
+    # Calculate polling window based on whether this is first run OR force_full flag
+    is_first_run = force_full or (account.last_sync_at is None)
     window_start, window_end = get_poll_window(is_first_run=is_first_run, today=scrape_day)
-    logger.info(f"Sync window: {window_start} to {window_end} (first_run={is_first_run})")
+    logger.info(f"Sync window: {window_start} to {window_end} (first_run={is_first_run}, force_full={force_full})")
 
     # Build headers from account credentials
     headers = build_headers(
@@ -95,7 +99,7 @@ def run_insights_poller(account: Account, scrape_day: date | None = None, trigge
 
     logger.info(f"Processing {len(listings)} listings for account {account.account_id}")
 
-    for listing_id, listing_name in sorted(listings.items(), key=lambda x: x[1]):
+    for listing_idx, (listing_id, listing_name) in enumerate(sorted(listings.items(), key=lambda x: x[1])):
         try:
             logger.info(f"Processing listing {listing_id} ({listing_name})...")
 
@@ -151,6 +155,12 @@ def run_insights_poller(account: Account, scrape_day: date | None = None, trigge
         finally:
             # Always clear parsed chunks for next listing, even on error
             poller._parsed_chunks.clear()
+
+            # Rate limiting: mimic human navigating between listings (15-30 seconds)
+            if listing_idx < len(listings) - 1:  # Don't delay after last listing
+                delay = random.uniform(15, 30)
+                logger.info(f"[RATE_LIMIT] Waiting {delay:.1f}s before next listing...")
+                time.sleep(delay)
 
     # Log summary
     logger.info(

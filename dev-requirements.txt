@@ -8,4 +8,4 @@ black==24.4.2
 pre-commit==3.7.0
 
 # Type stubs for mypy
-types-requests
+types-requests==2.32.0.20241016

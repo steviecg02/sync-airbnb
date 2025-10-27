@@ -1,18 +1,19 @@
 from datetime import date, timedelta
 
-from sync_airbnb.config import LOOKAHEAD_WEEKS, LOOKBACK_WEEKS, MAX_LOOKBACK_DAYS
+from sync_airbnb.config import LOOKAHEAD_WEEKS, MAX_LOOKBACK_DAYS
 from sync_airbnb.utils.date_window import get_poll_window
 
 
 def test_regular_run_aligned_to_sunday_saturday():
-    """Ensure non-initial runs start on Sunday and end on Saturday."""
+    """Ensure non-initial (incremental) runs start on Sunday and end on Saturday with 1-week lookback."""
     today = date(2025, 1, 13)  # Monday
     start, end = get_poll_window(is_first_run=False, today=today)
 
     assert start.weekday() == 6  # Sunday
     assert end.weekday() == 5  # Saturday
 
-    expected_days = ((LOOKBACK_WEEKS + LOOKAHEAD_WEEKS + 1) * 7) - 1  # inclusive
+    # Incremental uses 1 week lookback + LOOKAHEAD_WEEKS forward
+    expected_days = ((1 + LOOKAHEAD_WEEKS + 1) * 7) - 1  # inclusive (1 week back + 25 weeks forward)
     assert (end - start).days == expected_days
 
 

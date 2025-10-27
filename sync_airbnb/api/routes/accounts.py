@@ -544,6 +544,7 @@ async def restore_account(
 )
 async def trigger_sync(
     account_id: str,
+    force_full: bool = Query(False, description="Force full backfill (ignore last_sync_at)"),
     engine: Engine = Depends(get_db_engine),
 ):
     """
@@ -551,6 +552,15 @@ async def trigger_sync(
 
     Runs the sync in a background thread and returns immediately.
     Useful for testing or triggering an immediate sync outside the schedule.
+
+    Query Parameters:
+    - force_full: If true, runs full backfill (25 weeks back + 25 weeks forward) regardless of last_sync_at.
+                  If false, runs incremental sync (1 week back + 25 weeks forward).
+                  Default: false
+
+    Use Cases:
+    - force_full=false: Daily incremental sync (1 week back to catch backfills)
+    - force_full=true: Re-backfill all historical data (for testing or data refresh)
     """
     # Fetch account
     account = validate_account_exists(engine, account_id)
@@ -561,7 +571,7 @@ async def trigger_sync(
     # Run sync in background thread
     def run_sync():
         try:
-            run_insights_poller(account)
+            run_insights_poller(account, force_full=force_full, trigger="manual")
         except Exception as e:
             logger.error(f"Error in manual sync for {account_id}: {e}", exc_info=True)
         finally:
@@ -573,5 +583,5 @@ async def trigger_sync(
     _manual_sync_threads.append(thread)
     thread.start()
 
-    logger.info(f"Manual sync initiated for account {account_id} in thread {thread.name}")
-    return SyncResponse(message="Sync initiated in background", account_id=account_id)
+    logger.info(f"Manual sync initiated for account {account_id} (force_full={force_full}, thread={thread.name})")
+    return SyncResponse(message=f"Sync initiated in background (force_full={force_full})", account_id=account_id)

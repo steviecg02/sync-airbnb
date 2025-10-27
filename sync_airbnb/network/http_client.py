@@ -4,6 +4,7 @@ with retry handling and structured error responses.
 """
 
 import logging
+import random
 import time
 from typing import Any
 
@@ -69,6 +70,9 @@ def post_with_retry(
     endpoint = context or url
     start_time = time.time()
 
+    # Log every API call with context
+    logger.info(f"[API_CALL] {context or 'Unknown'}")
+
     try:
         res = requests.post(url, json=json, headers=headers, timeout=timeout)
         duration = time.time() - start_time
@@ -114,5 +118,10 @@ def post_with_retry(
 
     if not isinstance(data, dict) or "data" not in data:
         raise AirbnbRequestError(f"[{context}] Unexpected response structure: {data}")
+
+    # Rate limiting: mimic human clicking through UI (5-10 seconds between requests)
+    delay = random.uniform(5, 10)
+    logger.debug(f"[RATE_LIMIT] Waiting {delay:.1f}s before next request")
+    time.sleep(delay)
 
     return data

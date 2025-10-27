@@ -60,3 +60,8 @@ INSIGHTS_DRY_RUN = (get_env("INSIGHTS_DRY_RUN", required=False, default="false")
 LOOKBACK_WEEKS = int(get_env("LOOKBACK_WEEKS", required=False, default="25") or "25")
 LOOKAHEAD_WEEKS = int(get_env("LOOKAHEAD_WEEKS", required=False, default="25") or "25")
 MAX_LOOKBACK_DAYS = 180  # hard cap for backfill
+
+# --- Sync schedule configuration ---
+# Cron schedule for daily sync jobs (used by scheduler and startup sync logic)
+SYNC_CRON_HOUR = int(get_env("SYNC_CRON_HOUR", required=False, default="5") or "5")
+SYNC_CRON_MINUTE = int(get_env("SYNC_CRON_MINUTE", required=False, default="0") or "0")

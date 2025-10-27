@@ -322,6 +322,148 @@ def test_validate_credentials_with_network_error_fails_open():
 
 ## Future Enhancements
 
-1. **Periodic Revalidation:** Background job to check existing accounts' credentials still work
+1. **Periodic Revalidation:** Background job to check existing accounts' credentials still work (see Heartbeat Strategy below)
 2. **Cache Validation Results:** Skip validation for N minutes after successful validation
 3. **Detailed Error Messages:** Parse Airbnb API error responses for specific failure reasons
+
+---
+
+## Heartbeat Strategy (Future Enhancement)
+
+**Status:** Not yet implemented - waiting to see if Phase 1 (incremental sync fix + rate limiting) solves cookie expiry issues
+
+**Last Updated:** October 27, 2025
+
+### Overview
+
+Implement periodic credential validation to detect expired cookies quickly, especially important for multi-service architecture where multiple features depend on the same Airbnb credentials.
+
+### Use Case & Vision
+
+**Current Services:**
+- Insights/metrics sync (implemented)
+
+**Future Services:**
+- **Messages monitoring** (every 5 minutes) - 1-hour response SLA requirement
+- Reservations sync
+- Calendar sync
+- Pricing sync
+- Reviews sync
+
+**Problem:** If credentials expire, ALL services break. Currently we only detect failure when the daily 5 AM sync runs, which could be 12+ hours after actual expiry.
+
+**Solution:** Regular heartbeat checks that:
+- Detect credential expiry within minutes (not hours)
+- Provide early warning before scheduled sync runs
+- Enable all future services to check "are credentials valid?" before doing work
+- Separate lightweight validation from heavy data sync operations
+
+### Implementation Approach
+
+#### Phase 1: Simple Heartbeat (ListingsSectionQuery)
+
+**Purpose:** Test credential validation without implementing message monitoring yet.
+
+**Implementation:**
+- Frequency: Every 5 minutes (288 requests/day)
+- Query: `ListingsSectionQuery` - lightweight, returns list of listings
+- On success: Update `last_validation_at`, `last_validation_success=true`
+- On failure: Log warning, update `last_validation_at`, `last_validation_success=false`, `last_validation_error`
+
+**Code Location:**
+- New scheduler job in `sync_airbnb/services/scheduler.py`
+- Calls `AirbnbSync.fetch_listing_ids()` (already exists)
+- Updates validation columns in accounts table
+
+#### Phase 2: Message Monitoring (When Ready)
+
+**Purpose:** Dual-purpose - validate credentials AND check for new messages.
+
+**Implementation:**
+- Swap `ListingsSectionQuery` with actual message checking query
+- Same 5-minute frequency
+- On new messages: Trigger alerts/notifications
+- On auth failure: Same validation tracking as Phase 1
+
+**Benefit:** Heartbeat becomes a productive feature (message monitoring) instead of just overhead.
+
+### Frequency Rationale
+
+**Why 5 minutes:**
+- Messages require <1 hour response time (guest expectations)
+- 5-minute detection window provides 55-minute buffer for:
+  - Alert delivery (1-2 minutes)
+  - Human response time (53-55 minutes)
+- Enables future real-time features (messages, urgent reservation changes)
+- 288 requests/day is minimal compared to daily sync (462-896 requests)
+
+**Alternative frequencies:**
+- 10 minutes: Still reasonable for messages (50-minute response buffer)
+- 15 minutes: Acceptable for non-urgent monitoring (45-minute buffer)
+- 1 hour: Too slow for message response SLA
+
+### Database Schema Changes
+
+Add columns to track validation status:
+
+```sql
+ALTER TABLE airbnb.accounts ADD COLUMN last_validation_at TIMESTAMPTZ;
+ALTER TABLE airbnb.accounts ADD COLUMN last_validation_success BOOLEAN;
+ALTER TABLE airbnb.accounts ADD COLUMN last_validation_error TEXT;
+```
+
+**Usage by future services:**
+```python
+# Before starting expensive operation, check if credentials are valid
+if account.last_validation_at and account.last_validation_at < now - timedelta(minutes=10):
+    logger.warning(f"Credentials not validated in 10+ minutes, skipping operation")
+    return
+
+if not account.last_validation_success:
+    logger.error(f"Credentials invalid (last error: {account.last_validation_error})")
+    return
+
+# Proceed with operation
+...
+```
+
+### Prometheus Metrics
+
+Track validation attempts and results:
+
+```python
+# In sync_airbnb/metrics.py
+airbnb_credential_validation_total = Counter(
+    "airbnb_credential_validation_total",
+    "Total credential validation attempts",
+    ["account_id", "result"]  # result: success, auth_failure, network_error
+)
+
+airbnb_credential_validation_last_success = Gauge(
+    "airbnb_credential_validation_last_success",
+    "Timestamp of last successful credential validation",
+    ["account_id"]
+)
+```
+
+**Grafana alerts:**
+- Alert if `last_validation_success` hasn't updated in 15+ minutes
+- Alert if `last_validation_success=false` (credentials expired)
+
+### Implementation Priority
+
+**Current status:** Deferred until after monitoring results from:
+1. Incremental sync fix (Oct 27, 2025) - reduced from 896 → 462 requests/day
+2. Rate limiting (Oct 27, 2025) - added 5-10s delays between requests
+
+**Next steps:**
+1. Monitor cookie lifetime for 1 week with current changes
+2. If cookie still expires <7 days: Implement Phase 1 heartbeat
+3. If cookie lasts 7+ days: Defer heartbeat until message monitoring is needed
+
+### Notes
+
+- Heartbeat adds 288 requests/day (62% increase from current 462/day incremental)
+- But provides critical early warning for multi-service architecture
+- Once message monitoring is implemented, heartbeat becomes a productive feature (not just overhead)
+- 5-minute frequency is optimized for guest communication SLA, not just credential validation

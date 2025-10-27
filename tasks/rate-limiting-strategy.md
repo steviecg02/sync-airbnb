@@ -1,8 +1,8 @@
 # Rate Limiting & Request Optimization Strategy
 
-**Status:** Monitoring / Not Urgent
-**Last Updated:** October 22, 2025
-**Owner:** Strategic decision, revisit after data collection phase
+**Status:** ✅ Option A Implemented (October 27, 2025)
+**Last Updated:** October 27, 2025
+**Owner:** Strategic decision, monitor and iterate based on cookie lifetime
 
 ---
 
@@ -16,30 +16,32 @@
 
 ## Current State
 
-### Request Volume (After Recent Optimizations)
+### Request Volume (Corrected Math - October 27, 2025)
 
-**Per listing, per sync:**
-- **First run (25 weeks backfill):**
-  - ChartQuery: ~7 windows × 2 metrics = 14 requests
-  - ListOfMetricsQuery: 25 windows × 2 metrics = 50 requests
-  - **Total: 64 requests per listing**
+**Per listing, per sync (actual calculation):**
+- **First run (25 weeks back + 25 weeks forward = 355 days):**
+  - ChartQuery (28-day windows): 355/28 = ~13 requests × 2 metrics = **26 requests**
+  - ListOfMetricsQuery (7-day windows): 355/7 = ~51 requests × 2 metrics = **102 requests**
+  - **Total: 128 requests per listing**
 
-- **Subsequent runs (1 week incremental):**
-  - ChartQuery: 1 window × 2 metrics = 2 requests
-  - ListOfMetricsQuery: 1 window × 2 metrics = 2 requests
-  - **Total: 4 requests per listing**
+- **Incremental run (1 week back + 25 weeks forward = 182 days):**
+  - ChartQuery (28-day windows): 182/28 = ~7 requests × 2 metrics = **14 requests**
+  - ListOfMetricsQuery (7-day windows): 182/7 = ~26 requests × 2 metrics = **52 requests**
+  - **Total: 66 requests per listing (48% reduction from first run)**
 
-**For account with 5 listings:**
-- First run: 320 requests (all at once, no delays)
-- Daily run: 20 requests per day
+**For account with 7 listings:**
+- First run: 896 requests
+- Incremental run: 462 requests per day
 
-### Current Rate Limiting
+**Note:** Previous calculations were based on database rows, not API requests. The above reflects actual API call counts.
+
+### Current Rate Limiting (✅ Implemented October 27, 2025)
 
 - ✅ **Exponential backoff retry** - 5 tries for network errors (via `@backoff.on_exception`)
-- ✅ **429 detection added** - Logs prominently: `⚠️ RATE LIMIT HIT (429)` with Retry-After header
-- ❌ **No inter-request delays** - Requests fire as fast as possible
-- ❌ **No 429 handling observed** - Never seen in logs (could have been buried before fix)
-- ❌ **No concurrent request limiting** - Could spawn hundreds of parallel requests (not currently, but possible)
+- ✅ **429 detection** - Logs prominently: `RATE LIMIT HIT (429)` with Retry-After header
+- ✅ **Inter-request delays** - 5-10 seconds between API requests (mimics human clicking)
+- ✅ **Between-listing delays** - 15-30 seconds between listings (mimics human navigation)
+- ✅ **Sequential processing** - No concurrent requests (single user, single tab pattern)
 
 ### API Calls Currently Made
 
@@ -322,16 +324,63 @@ tail -f /var/log/sync_airbnb/app.log | grep "⚠️"
 
 ---
 
+## Implementation Details (October 27, 2025)
+
+### Option A: Single User, Single Tab (IMPLEMENTED)
+
+**Pattern:** Mimics one human using one browser tab, clicking through metrics sequentially.
+
+**Implementation:**
+- **Location:** `sync_airbnb/network/http_client.py` - `post_with_retry()` function
+- **Between requests:** `time.sleep(random.uniform(5, 10))` - mimics human clicking through charts
+- **Between listings:** `time.sleep(random.uniform(15, 30))` in `run_insights_poller()` - mimics navigation
+
+**Expected Timing:**
+- **7 listings, first sync:** 896 requests × 7.5s avg + 6 × 22.5s = ~112 minutes (vs 10 min without rate limiting)
+- **7 listings, incremental:** 462 requests × 7.5s avg + 6 × 22.5s = ~60 minutes
+- **50 listings, incremental:** 3,300 requests × 7.5s + 49 × 22.5s = ~413 minutes (6.9h)
+- **1,000 listings, incremental:** 66,000 requests × 7.5s + 999 × 22.5s = ~8,250 minutes (137.5h = 5.7 days)
+
+**Scalability:** Works well for small-medium accounts (<50 listings). Not practical for 1,000+ listings.
+
+---
+
+### Future Options (Not Implemented Yet)
+
+#### Option B: Single User, Multiple Tabs (10 tabs)
+- **Concurrency:** 10 listings processed in parallel
+- **Pattern:** Like opening 10 browser tabs and clicking through each
+- **Timing for 1,000 listings:** ~13.8 hours (vs 5.7 days for Option A)
+- **When to use:** If Option A solves cookie issues and need to scale to 100-1,000 listings
+
+#### Option C: Property Management Team (10 people, 1 tab each)
+- **Concurrency:** 10 workers, each with navigation delays between listings
+- **Pattern:** Like 10 employees each checking their assigned listings
+- **Timing for 1,000 listings:** ~14.8 hours
+- **When to use:** More realistic pattern than Option B, similar performance
+
+#### Option D: Large PM Company (10 people, 10 tabs each)
+- **Concurrency:** 100 listings processed simultaneously
+- **Pattern:** Enterprise-scale property management
+- **Timing for 1,000 listings:** ~1.4 hours
+- **When to use:** Only if desperate for speed and willing to risk looking suspicious
+
+**Recommendation:** Start with Option A, monitor cookie lifetime. If cookie lasts 7+ days and need to scale, implement Option B or C with adaptive concurrency based on listing count.
+
+---
+
 ## Decision Log
 
 | Date | Decision | Rationale | Outcome |
 |------|----------|-----------|---------|
-| Oct 2025 | Reduced backfill to 25 weeks first run, 1 week incremental | 93% reduction in daily requests | TBD - monitoring |
-| Oct 22, 2025 | Added 429 error logging with ⚠️ prefix | Make rate limits visible if they occur | In place |
-| Oct 22, 2025 | Deploy to Nook at home (same IP as cookie source) | Eliminate IP mismatch as potential cause | Pending tomorrow |
+| Oct 2025 | Reduced backfill to 25 weeks first run, 1 week incremental | 93% reduction in daily requests (was broken, showed 0% until Oct 27 fix) | ✅ Fixed Oct 27 |
+| Oct 22, 2025 | Added 429 error logging | Make rate limits visible if they occur | ✅ In place |
+| Oct 22, 2025 | Deploy to Nook at home (same IP as cookie source) | Eliminate IP mismatch as potential cause | ✅ Deployed |
+| Oct 27, 2025 | **Fixed incremental sync bug** | Was using 25 weeks lookback instead of 1 week - incremental syncs were identical to first sync | ✅ Fixed |
+| Oct 27, 2025 | **Implemented Option A rate limiting** | 5-10s between requests, 15-30s between listings - simplest approach to test if volume is the issue | ✅ Implemented |
 | TBD | Phase 2: Remove unused metrics/API calls | TBD - need data exploration first | Not started |
-| TBD | Phase 3: Limit forecast window to 3 months | TBD - need to test Airbnb's data availability | Not started |
-| TBD | Phase 4: Add inter-request delays | Only if Phases 1-3 don't solve cookie expiry | Not started |
+| TBD | Phase 3: Limit forecast window (25 weeks → 4-8 weeks) | TBD - need to test Airbnb's data availability | Not started |
+| TBD | Option B/C: Implement concurrency for large accounts | Only if Option A works and need to scale | Not started |
 
 ---
 

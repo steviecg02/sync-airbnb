@@ -8,7 +8,7 @@ first-run logic based on configured constants.
 import logging
 from datetime import date, timedelta
 
-from sync_airbnb.config import LOOKAHEAD_WEEKS, LOOKBACK_WEEKS, MAX_LOOKBACK_DAYS
+from sync_airbnb.config import LOOKAHEAD_WEEKS, MAX_LOOKBACK_DAYS
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,8 @@ def get_poll_window(is_first_run: bool, today: date | None = None) -> tuple[date
         days_to_sunday = (6 - raw_start.weekday()) % 7  # Sunday = 6
         start_date = raw_start + timedelta(days=days_to_sunday)
     else:
-        start_date = current_sunday - timedelta(weeks=LOOKBACK_WEEKS)
+        # Incremental: 1 week back to catch late-arriving data (Airbnb backfills ~3 days)
+        start_date = current_sunday - timedelta(weeks=1)
 
     end_date = current_sunday + timedelta(weeks=LOOKAHEAD_WEEKS, days=6)
 

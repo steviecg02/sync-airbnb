@@ -21,10 +21,12 @@ def get_first_component(response: dict) -> dict:
     errors = response.get("errors", [])
     auth_error = any(err.get("extensions", {}).get("errorType") == "authentication_required" for err in errors)
 
-    # Fallback: check if getPerformanceComponents is null
-    if not auth_error:
-        perf_components = response.get("data", {}).get("porygon", {}).get("getPerformanceComponents")
-        auth_error = perf_components is None
+    # Fallback: check if getPerformanceComponents is explicitly set to null (not just missing)
+    # Only treat as auth error if "porygon" key exists and getPerformanceComponents is explicitly None
+    if not auth_error and "porygon" in response.get("data", {}):
+        porygon = response["data"]["porygon"]
+        if "getPerformanceComponents" in porygon and porygon["getPerformanceComponents"] is None:
+            auth_error = True
 
     if auth_error:
         # Extract error message from Airbnb's response

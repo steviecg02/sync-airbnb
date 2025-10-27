@@ -17,6 +17,22 @@ def get_first_component(response: dict) -> dict:
     Returns:
         dict: The first component block, or an empty dict if missing.
     """
+    # Check for authentication errors in the response
+    errors = response.get("errors", [])
+    auth_error = any(err.get("extensions", {}).get("errorType") == "authentication_required" for err in errors)
+
+    # Fallback: check if getPerformanceComponents is null
+    if not auth_error:
+        perf_components = response.get("data", {}).get("porygon", {}).get("getPerformanceComponents")
+        auth_error = perf_components is None
+
+    if auth_error:
+        # Extract error message from Airbnb's response
+        error_msg = "Please login to continue (credentials expired)"
+        if errors:
+            error_msg = errors[0].get("message", error_msg)
+        raise ValueError(f"Airbnb authentication failed: {error_msg}")
+
     try:
         component = (
             response.get("data", {}).get("porygon", {}).get("getPerformanceComponents", {}).get("components", [{}])[0]

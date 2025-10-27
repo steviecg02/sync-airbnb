@@ -136,7 +136,8 @@ class AirbnbSync:
         if query_type == "ListingsSectionQuery":
             context = f"{query_type}"
         else:
-            window_days = (end_date - start_date).days if start_date and end_date else 0
+            # Inclusive day count: end_date - start_date + 1
+            window_days = (end_date - start_date).days + 1 if start_date and end_date else 0
             # Format: ChartQuery|Listing_ID_Name|METRIC_TYPE|start_to_end|Nd
             context = (
                 f"{query_type}|Listing_{listing_id}_{listing_name.replace(' ', '_')}|"

@@ -8,6 +8,5 @@ psycopg2-binary==2.9.10
 pydantic==2.10.3
 python-dotenv==1.1.1
 requests==2.32.4
-types-requests==2.32.0.20241016
 SQLAlchemy==2.0.41
 uvicorn==0.34.0

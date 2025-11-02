@@ -79,7 +79,7 @@ def test_run_insights_poller_happy_path(
 
     # Verify data was inserted with account_id added
     mock_insert_chart_query_rows.assert_called_once()
-    mock_insert_chart_summary_rows.assert_called_once()
+    # chart_summary is skipped (not called)
     mock_insert_list_of_metrics_rows.assert_called_once()
 
     # Verify last_sync was updated

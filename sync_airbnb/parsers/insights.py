@@ -19,12 +19,12 @@ def parse_all(chunks: list[dict[str, Any]], debug: bool = False) -> dict[str, li
     Returns:
         Dict[str, List[Dict[str, Any]]]: Dictionary with keys:
             - "chart_query": timeseries rows (listing × date)
-            - "chart_summary": summary metrics (listing × window)
+            - "chart_summary": summary metrics (listing × window) - SKIPPED (not needed)
             - "list_of_metrics": overview metrics (listing × window)
     """
     results = {
         "chart_query": _extract_chart_timeseries_rows(chunks),
-        "chart_summary": _extract_chart_summary_metrics(chunks),
+        "chart_summary": [],  # Skipped: not needed for analysis
         "list_of_metrics": _extract_list_of_metrics(chunks),
     }
 

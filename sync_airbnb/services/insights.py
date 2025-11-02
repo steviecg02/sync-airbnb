@@ -7,7 +7,6 @@ from typing import Any
 from sync_airbnb.config import DEBUG, engine
 from sync_airbnb.db.insights import (
     insert_chart_query_rows,
-    insert_chart_summary_rows,
     insert_list_of_metrics_rows,
 )
 from sync_airbnb.db.writers.accounts import update_last_sync
@@ -121,14 +120,15 @@ def run_insights_poller(
             # Add account_id to all rows before inserting
             for row in parsed_chunks["chart_query"]:
                 row["account_id"] = account.account_id
-            for row in parsed_chunks["chart_summary"]:
-                row["account_id"] = account.account_id
+            # chart_summary is skipped (not needed for analysis)
+            # for row in parsed_chunks["chart_summary"]:
+            #     row["account_id"] = account.account_id
             for row in parsed_chunks["list_of_metrics"]:
                 row["account_id"] = account.account_id
 
             # Insert to database (each table separately to isolate failures)
             insert_chart_query_rows(engine, parsed_chunks["chart_query"])
-            insert_chart_summary_rows(engine, parsed_chunks["chart_summary"])
+            # insert_chart_summary_rows(engine, parsed_chunks["chart_summary"])  # Skipped: not needed
             insert_list_of_metrics_rows(engine, parsed_chunks["list_of_metrics"])
 
             results["succeeded"] += 1

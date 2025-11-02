@@ -45,7 +45,7 @@ def get_first_component(response: dict) -> dict:
         raise ValueError("Could not resolve component structure") from e
 
 
-def extract_numeric_value(value_dict: dict) -> int | float | None:
+def extract_numeric_value(value_dict: Any) -> int | float | None:
     """
     Extracts a numeric value from a GraphQL numeric wrapper dict.
 
@@ -67,20 +67,36 @@ def extract_numeric_value(value_dict: dict) -> int | float | None:
     return value_dict.get("longValue")
 
 
-def coerce_number(val: Any) -> int | float | Any:
+def coerce_number(val: Any) -> int | float | None:
     """
-    Coerce string representations of numbers to int or float, leave other types unchanged.
+    Coerce string representations of numbers to int or float, return None for invalid values.
 
     Args:
         val (Any): The value to coerce.
 
     Returns:
-        int | float | Any: The coerced number or original value if coercion fails.
+        int | float | None: The coerced number or None if coercion fails or value is invalid.
     """
+    # Handle None explicitly
+    if val is None:
+        return None
+
+    # Handle numeric types directly
+    if isinstance(val, int | float):
+        return val
+
+    # Handle strings
     if isinstance(val, str):
         try:
             return int(val) if val.isdigit() else float(val)
         except ValueError:
             logger.debug("Failed to coerce string to number: %s", val)
-            return val
-    return val
+            return None
+
+    # Defensive: catch unexpected types (like SQLAlchemy bindparam objects)
+    logger.warning(
+        "Unexpected value type in coerce_number: %s (type=%s). Returning None.",
+        repr(val)[:100],
+        type(val).__name__,
+    )
+    return None

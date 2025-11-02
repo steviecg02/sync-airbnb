@@ -7,7 +7,7 @@ def test_get_first_component_valid_structure():
 
 
 def test_get_first_component_missing_keys_returns_empty():
-    data = {"data": {}}
+    data: dict = {"data": {}}
     result = get_first_component(data)
     assert result == {}
 
@@ -38,8 +38,8 @@ def test_coerce_number_string_float():
     assert coerce_number("12.34") == 12.34
 
 
-def test_coerce_number_bad_string_returns_original():
-    assert coerce_number("abc123") == "abc123"
+def test_coerce_number_bad_string_returns_none():
+    assert coerce_number("abc123") is None
 
 
 def test_coerce_number_already_number():

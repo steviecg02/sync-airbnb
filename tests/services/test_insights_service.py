@@ -8,7 +8,6 @@ from sync_airbnb.services import insights
 @patch("sync_airbnb.services.insights.update_last_sync")
 @patch("sync_airbnb.services.insights.build_headers")
 @patch("sync_airbnb.services.insights.insert_list_of_metrics_rows")
-@patch("sync_airbnb.services.insights.insert_chart_summary_rows")
 @patch("sync_airbnb.services.insights.insert_chart_query_rows")
 @patch("sync_airbnb.services.insights.get_poll_window")
 @patch("sync_airbnb.services.insights.AirbnbSync")
@@ -16,7 +15,6 @@ def test_run_insights_poller_happy_path(
     mock_airbnb_sync,
     mock_get_poll_window,
     mock_insert_chart_query_rows,
-    mock_insert_chart_summary_rows,
     mock_insert_list_of_metrics_rows,
     mock_build_headers,
     mock_update_last_sync,

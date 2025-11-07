@@ -1,6 +1,8 @@
 """
 HTTP client for making POST requests to Airbnb's internal GraphQL API,
 with retry handling and structured error responses.
+
+Uses curl-cffi to mimic Chrome's TLS fingerprint for better bot detection evasion.
 """
 
 import logging
@@ -9,7 +11,7 @@ import time
 from typing import Any
 
 import backoff
-import requests
+from curl_cffi import requests as curl_requests
 
 from sync_airbnb.metrics import (
     airbnb_api_request_duration_seconds,
@@ -36,7 +38,7 @@ def _log_retry(details):
 
 @backoff.on_exception(
     backoff.expo,
-    (requests.exceptions.RequestException,),
+    (Exception,),  # curl_cffi uses different exception types
     max_tries=5,
     jitter=None,
     on_backoff=_log_retry,
@@ -52,6 +54,9 @@ def post_with_retry(
     """
     Makes a POST request to Airbnb's API with retries and structured error handling.
 
+    Uses curl-cffi with Chrome impersonation to mimic real browser TLS fingerprint.
+    This helps avoid Akamai Bot Manager detection.
+
     Args:
         url (str): Target API endpoint.
         json (dict): JSON body to send with the request.
@@ -65,7 +70,7 @@ def post_with_retry(
 
     Raises:
         AirbnbRequestError: If the request fails or returns unexpected content.
-        requests.exceptions.RequestException: For retryable HTTP errors.
+        Exception: For retryable HTTP errors (caught by backoff decorator).
     """
     endpoint = context or url
     start_time = time.time()
@@ -74,14 +79,17 @@ def post_with_retry(
     logger.info(f"[API_CALL] {context or 'Unknown'}")
 
     try:
-        res = requests.post(url, json=json, headers=headers, timeout=timeout)
+        # Use curl-cffi with Chrome 110 impersonation for TLS fingerprinting
+        res = curl_requests.post(
+            url, json=json, headers=headers, timeout=timeout, impersonate="chrome110"  # Mimic Chrome's TLS fingerprint
+        )
         duration = time.time() - start_time
 
         # Track request metrics
         airbnb_api_requests_total.labels(endpoint=endpoint, status_code=res.status_code).inc()
         airbnb_api_request_duration_seconds.labels(endpoint=endpoint).observe(duration)
 
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         duration = time.time() - start_time
         airbnb_api_request_duration_seconds.labels(endpoint=endpoint).observe(duration)
         airbnb_api_requests_total.labels(endpoint=endpoint, status_code="error").inc()
@@ -95,26 +103,22 @@ def post_with_retry(
 
     if res.status_code in {401, 403}:
         errors_total.labels(error_type="AuthError", component="network").inc()
-        raise AirbnbRequestError(f"[{context}] Auth error: {res.status_code} - {res.text.strip()}")
+        raise AirbnbRequestError(f"[{context}] Auth error: {res.status_code} - {res.text}")
 
     if res.status_code == 429:
         # Rate limit hit - log prominently and raise for retry
         errors_total.labels(error_type="RateLimitError", component="network").inc()
         retry_after = res.headers.get("Retry-After", "unknown")
-        logger.warning(
-            f"RATE LIMIT HIT (429) - Context: {context}, Retry-After: {retry_after}s, Response: {res.text.strip()}"
-        )
-        raise requests.exceptions.RequestException(f"[{context}] Rate limit error (429) - Retry-After: {retry_after}s")
+        logger.warning(f"RATE LIMIT HIT (429) - Context: {context}, Retry-After: {retry_after}s, Response: {res.text}")
+        raise Exception(f"[{context}] Rate limit error (429) - Retry-After: {retry_after}s")
 
     if res.status_code in RETRYABLE_STATUS_CODES:
-        raise requests.exceptions.RequestException(
-            f"[{context}] Retryable error: {res.status_code} - {res.text.strip()}"
-        )
+        raise Exception(f"[{context}] Retryable error: {res.status_code} - {res.text}")
 
     try:
         data = res.json()
     except ValueError:
-        raise AirbnbRequestError(f"[{context}] Invalid JSON response: {res.text.strip()}")
+        raise AirbnbRequestError(f"[{context}] Invalid JSON response: {res.text}")
 
     if not isinstance(data, dict) or "data" not in data:
         raise AirbnbRequestError(f"[{context}] Unexpected response structure: {data}")

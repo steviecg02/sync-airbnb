@@ -34,6 +34,10 @@ ignore_missing_imports = true
 module = "apscheduler.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "curl_cffi.*"
+ignore_missing_imports = true
+
 # Ignore deprecated/to-be-deleted files
 [[tool.mypy.overrides]]
 module = "sync_airbnb.pollers.insights"

@@ -17,7 +17,6 @@ from sync_airbnb.config import get_env
 def build_headers(
     airbnb_cookie: str,
     x_client_version: str,
-    x_airbnb_client_trace_id: str,
     user_agent: str,
     airbnb_api_key: str | None = None,
     referer: str | None = None,
@@ -32,13 +31,12 @@ def build_headers(
 
     Args:
         airbnb_cookie: Full Airbnb cookie string
-        x_client_version: Airbnb client version
-        x_airbnb_client_trace_id: Airbnb client trace ID
+        x_client_version: Airbnb client version (e.g., git commit SHA)
         user_agent: Browser user agent string
         airbnb_api_key: Airbnb API key (defaults to env var)
         referer: Page referer URL (optional, specific to endpoint)
-        x_client_request_id: Client request ID (auto-generated if not provided)
-        x_airbnb_network_log_link: Network log link (auto-generated if not provided)
+        x_client_request_id: Client request ID (auto-generated 30-char random string if not provided)
+        x_airbnb_network_log_link: Network log link (auto-generated 30-char random string if not provided)
 
     Returns:
         dict: Headers dictionary ready for requests, matching Chrome exactly
@@ -46,13 +44,16 @@ def build_headers(
     if airbnb_api_key is None:
         airbnb_api_key = get_env("AIRBNB_API_KEY") or ""
 
-    # Generate unique request ID if not provided (24 chars, lowercase + digits)
-    if x_client_request_id is None:
-        x_client_request_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=24))
+    # Generate unique trace ID per session (30 chars to match browser - used for request tracing)
+    x_airbnb_client_trace_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=30))
 
-    # Generate network log link if not provided (24 chars, lowercase + digits)
+    # Generate unique request ID if not provided (30 chars to match browser)
+    if x_client_request_id is None:
+        x_client_request_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=30))
+
+    # Generate network log link if not provided (30 chars to match browser)
     if x_airbnb_network_log_link is None:
-        x_airbnb_network_log_link = "".join(random.choices(string.ascii_lowercase + string.digits, k=24))
+        x_airbnb_network_log_link = "".join(random.choices(string.ascii_lowercase + string.digits, k=30))
 
     headers = {
         # Standard HTTP headers (order matters for some fingerprinting)
@@ -100,9 +101,9 @@ def build_headers(
 
 
 # Backwards compatibility: default headers from environment variables
+# Note: X_AIRBNB_CLIENT_TRACE_ID is auto-generated (no longer needed in env)
 HEADERS = build_headers(
     airbnb_cookie=get_env("AIRBNB_COOKIE") or "",
     x_client_version=get_env("X_CLIENT_VERSION") or "",
-    x_airbnb_client_trace_id=get_env("X_AIRBNB_CLIENT_TRACE_ID") or "",
     user_agent=get_env("USER_AGENT", required=False, default="Mozilla/5.0") or "Mozilla/5.0",
 )

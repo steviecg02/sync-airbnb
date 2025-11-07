@@ -17,7 +17,7 @@ def test_validate_account_exists_returns_account_when_found():
         account_id="123",
         airbnb_cookie="test",
         x_client_version="v1",
-        x_airbnb_client_trace_id="trace",
+        # x_airbnb_client_trace_id removed - auto-generated in build_headers()
         user_agent="agent",
         is_active=True,
     )

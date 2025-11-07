@@ -36,12 +36,11 @@ def test_run_insights_poller_happy_path(
     mock_sync_instance._parsed_chunks.clear = MagicMock()
     mock_airbnb_sync.return_value = mock_sync_instance
 
-    # Mock account
+    # Mock account (trace_id removed - auto-generated in build_headers())
     mock_account = Account(
         account_id="test_account",
         airbnb_cookie="test_cookie",
         x_client_version="test_version",
-        x_airbnb_client_trace_id="test_trace",
         user_agent="test_agent",
         is_active=True,
         last_sync_at=None,

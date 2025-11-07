@@ -27,12 +27,21 @@ logger = logging.getLogger(__name__)
 # --- Poll Configuration ---
 METRIC_QUERIES = {
     "ChartQuery": [
-        ("CONVERSION", ["conversion_rate"]),
-        ("CONVERSION", ["p3_impressions"]),
+        # ("CONVERSION", ["conversion_rate"]),  # REMOVED: 25% traffic reduction
+        #   - Daily conversion rates not needed (have 7-day aggregates in ListOfMetricsQuery)
+        #   - Saves 49 API calls per listing per 25-week backfill (7 listings)
+        #   - chart_query table conversion_rate_* columns will be NULL
+        ("CONVERSION", ["p3_impressions"]),  # Keep: Daily page view counts for graphing
     ],
     "ListOfMetricsQuery": [
-        ("CONVERSION", ["conversion_rate"]),
-        ("CONVERSION", ["p3_impressions"]),
+        ("CONVERSION", ["conversion_rate"]),  # Keep: Returns 4 metrics in one call!
+        #   - conversion_rate (0.11% - Overall conversion)
+        #   - search_conversion_rate (5.63% - Search to listing)
+        #   - listing_conversion_rate (1.96% - Listing to booking)
+        #   - p2_impressions_first_page_rate (69.9% - First page rate)
+        ("CONVERSION", ["p3_impressions"]),  # Keep: Returns 2 metrics
+        #   - p3_impressions (460 - Total page views)
+        #   - p2_impressions (8166 - Total first-page search impressions)
     ],
 }
 
@@ -79,10 +88,10 @@ def run_insights_poller(
     logger.info(f"Sync window: {window_start} to {window_end} (first_run={is_first_run}, force_full={force_full})")
 
     # Build headers from account credentials
+    # Note: x_airbnb_client_trace_id is auto-generated in build_headers()
     headers = build_headers(
         airbnb_cookie=account.airbnb_cookie,
         x_client_version=account.x_client_version,
-        x_airbnb_client_trace_id=account.x_airbnb_client_trace_id,
         user_agent=account.user_agent,
     )
 

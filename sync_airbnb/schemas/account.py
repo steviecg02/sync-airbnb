@@ -10,7 +10,7 @@ class AccountCreate(BaseModel):
     account_id: str = Field(..., min_length=1, max_length=255, description="Airbnb account ID (extracted from cookie)")
     customer_id: UUID | None = Field(None, description="Internal customer UUID")
     airbnb_cookie: str = Field(..., min_length=50, description="Full Airbnb cookie string")
-    x_airbnb_client_trace_id: str = Field(..., min_length=10, description="Airbnb client trace ID header")
+    # x_airbnb_client_trace_id removed - auto-generated in build_headers() (not validated by Airbnb)
     x_client_version: str = Field(..., min_length=1, max_length=50, description="Airbnb client version header")
     user_agent: str = Field(..., min_length=10, max_length=500, description="Browser user agent string")
     is_active: bool = Field(True, description="Whether account is active")
@@ -37,7 +37,7 @@ class AccountUpdate(BaseModel):
 
     customer_id: UUID | None = None
     airbnb_cookie: str | None = None
-    x_airbnb_client_trace_id: str | None = None
+    # x_airbnb_client_trace_id removed - auto-generated in build_headers() (not validated by Airbnb)
     x_client_version: str | None = None
     user_agent: str | None = None
     is_active: bool | None = None

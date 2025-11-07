@@ -21,7 +21,7 @@ def create_or_update_account(engine: Engine, account_data: AccountCreate) -> Acc
             account_id=account_data.account_id,
             customer_id=account_data.customer_id,
             airbnb_cookie=account_data.airbnb_cookie,
-            x_airbnb_client_trace_id=account_data.x_airbnb_client_trace_id,
+            # x_airbnb_client_trace_id removed - auto-generated in build_headers()
             x_client_version=account_data.x_client_version,
             user_agent=account_data.user_agent,
             is_active=account_data.is_active,
@@ -33,7 +33,7 @@ def create_or_update_account(engine: Engine, account_data: AccountCreate) -> Acc
             set_={
                 "customer_id": stmt.excluded.customer_id,
                 "airbnb_cookie": stmt.excluded.airbnb_cookie,
-                "x_airbnb_client_trace_id": stmt.excluded.x_airbnb_client_trace_id,
+                # x_airbnb_client_trace_id removed - auto-generated in build_headers()
                 "x_client_version": stmt.excluded.x_client_version,
                 "user_agent": stmt.excluded.user_agent,
                 "is_active": stmt.excluded.is_active,

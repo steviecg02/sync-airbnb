@@ -20,7 +20,7 @@ class Account(Base):
 
     # Airbnb authentication headers
     airbnb_cookie: str = Column(Text, nullable=False)  # type: ignore[assignment]
-    x_airbnb_client_trace_id: str = Column(String, nullable=False)  # type: ignore[assignment]
+    # x_airbnb_client_trace_id removed - auto-generated in build_headers() (not validated by Airbnb)
     x_client_version: str = Column(String, nullable=False)  # type: ignore[assignment]
     user_agent: str = Column(Text, nullable=False)  # type: ignore[assignment]
 

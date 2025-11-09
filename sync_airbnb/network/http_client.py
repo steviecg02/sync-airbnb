@@ -29,6 +29,13 @@ class AirbnbRequestError(Exception):
     """Raised when an Airbnb API call fails or returns an unexpected response."""
 
 
+class AirbnbAuthError(Exception):
+    """Raised when Airbnb returns authentication/login required error.
+
+    This is a critical error that should stop all sync operations immediately.
+    """
+
+
 def _log_retry(details):
     """Callback for backoff retries to track in Prometheus."""
     endpoint = details.get("args", ["unknown"])[0] if details.get("args") else "unknown"

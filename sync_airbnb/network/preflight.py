@@ -82,9 +82,13 @@ def get_fresh_akamai_cookies(user_agent: str, auth_cookie: str | None = None, ti
 
         if not akamai_cookies:
             logger.warning("Preflight request succeeded but no Akamai cookies found in response")
+            logger.warning(f"Set-Cookie headers received: {list(set_cookies.keys())}")
         else:
             logger.info(f"Preflight request successful, obtained {len(akamai_cookies)} Akamai cookies")
-            logger.debug(f"Akamai cookies: {list(akamai_cookies.keys())}")
+            # Log cookie names and truncated values for debugging (first 20 + last 20 chars)
+            for name, value in akamai_cookies.items():
+                truncated = f"{value[:20]}...{value[-20:]}" if len(value) > 40 else value
+                logger.info(f"[PREFLIGHT] {name}={truncated}")
 
         return akamai_cookies
 

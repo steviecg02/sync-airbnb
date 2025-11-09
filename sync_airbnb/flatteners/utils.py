@@ -1,6 +1,8 @@
 import logging
 from typing import Any
 
+from sync_airbnb.network.http_client import AirbnbAuthError
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +35,9 @@ def get_first_component(response: dict) -> dict:
         error_msg = "Please login to continue (credentials expired)"
         if errors:
             error_msg = errors[0].get("message", error_msg)
-        raise ValueError(f"Airbnb authentication failed: {error_msg}")
+        # Raise specific auth error to stop sync immediately
+        logger.error(f"[AUTH_FAILURE] {error_msg}")
+        raise AirbnbAuthError(f"Airbnb authentication failed: {error_msg}")
 
     try:
         component = (

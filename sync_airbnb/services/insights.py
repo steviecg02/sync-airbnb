@@ -87,10 +87,42 @@ def run_insights_poller(
     window_start, window_end = get_poll_window(is_first_run=is_first_run, today=scrape_day)
     logger.info(f"Sync window: {window_start} to {window_end} (first_run={is_first_run}, force_full={force_full})")
 
-    # Build headers from account credentials
+    # Step 1: Get fresh Akamai Bot Manager cookies via preflight
+    logger.info("[PREFLIGHT] Requesting fresh Akamai cookies from Airbnb homepage...")
+    from sync_airbnb.network.preflight import get_fresh_akamai_cookies
+    from sync_airbnb.utils.cookie_utils import extract_auth_cookies, merge_cookies, parse_cookie_string
+
+    try:
+        # Extract auth cookies from stored cookie string (these are long-lived)
+        auth_cookies = extract_auth_cookies(account.airbnb_cookie)
+        logger.info(f"[COOKIES] Using {len(auth_cookies)} auth cookies: {list(auth_cookies.keys())}")
+
+        # Get fresh Akamai cookies (these expire quickly and trigger bot detection if stale)
+        fresh_akamai_cookies = get_fresh_akamai_cookies(
+            user_agent=account.user_agent,
+            auth_cookie=account.airbnb_cookie,
+        )
+        logger.info(
+            f"[PREFLIGHT] Received {len(fresh_akamai_cookies)} fresh Akamai cookies: {list(fresh_akamai_cookies.keys())}"
+        )
+
+        # Merge auth + fresh Akamai cookies
+        merged_cookie_string = merge_cookies(auth_cookies, fresh_akamai_cookies)
+        merged_cookies = parse_cookie_string(merged_cookie_string)
+        logger.info(
+            f"[COOKIES] Merged cookie string has {len(merged_cookies)} total cookies "
+            f"(auth: {len(auth_cookies)}, akamai: {len(fresh_akamai_cookies)})"
+        )
+
+    except Exception as e:
+        logger.error(f"[PREFLIGHT] Failed to get fresh Akamai cookies: {e}")
+        logger.warning("[PREFLIGHT] Continuing with stored cookies (may fail with auth errors)")
+        merged_cookie_string = account.airbnb_cookie
+
+    # Build headers from account credentials with merged cookies
     # Note: x_airbnb_client_trace_id is auto-generated in build_headers()
     headers = build_headers(
-        airbnb_cookie=account.airbnb_cookie,
+        airbnb_cookie=merged_cookie_string,
         x_client_version=account.x_client_version,
         user_agent=account.user_agent,
     )
@@ -145,6 +177,18 @@ def run_insights_poller(
             logger.info(f"Listing {listing_id} ({listing_name}) completed successfully")
 
         except Exception as e:
+            # Check if this is an auth failure - if so, stop immediately
+            from sync_airbnb.network.http_client import AirbnbAuthError
+
+            if isinstance(e, AirbnbAuthError):
+                logger.error(
+                    f"[AUTH_FAILURE] Authentication failed for account {account.account_id}. "
+                    f"Stopping sync immediately. Please refresh cookies."
+                )
+                errors_total.labels(error_type="AirbnbAuthError", component="sync").inc()
+                # Re-raise to stop all sync operations
+                raise
+
             results["failed"] += 1
             sync_listings_processed_total.labels(account_id=account.account_id, status="failure").inc()
             errors_total.labels(error_type=type(e).__name__, component="sync").inc()

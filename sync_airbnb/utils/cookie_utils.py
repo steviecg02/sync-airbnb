@@ -182,18 +182,27 @@ def parse_set_cookie_headers(headers: Any) -> dict[str, str]:
                     name, value = cookie_pair.split("=", 1)
                     cookies[name.strip()] = value.strip()
 
-    # Handle list of tuples (curl_cffi style and curl_cffi Headers object)
-    # curl_cffi Headers object is iterable as list of tuples
+    # Handle curl_cffi Headers object (has get_list method)
     else:
         try:
-            for header_name, header_value in headers:
-                if header_name.lower() == "set-cookie":
+            # Try to use get_list() method (curl_cffi Headers)
+            if hasattr(headers, "get_list"):
+                set_cookie_list = headers.get_list("set-cookie")
+                for header_value in set_cookie_list:
                     if "=" in header_value:
                         cookie_pair = header_value.split(";")[0].strip()
                         name, value = cookie_pair.split("=", 1)
                         cookies[name.strip()] = value.strip()
-        except (TypeError, ValueError):
-            # If iteration fails, just return empty dict
+            # Fallback: try iterating as list of tuples
+            else:
+                for header_name, header_value in headers:
+                    if header_name.lower() == "set-cookie":
+                        if "=" in header_value:
+                            cookie_pair = header_value.split(";")[0].strip()
+                            name, value = cookie_pair.split("=", 1)
+                            cookies[name.strip()] = value.strip()
+        except (TypeError, ValueError, AttributeError):
+            # If all methods fail, just return empty dict
             pass
 
     return cookies

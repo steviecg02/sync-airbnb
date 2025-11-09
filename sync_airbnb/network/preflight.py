@@ -16,8 +16,9 @@ from sync_airbnb.utils.cookie_utils import extract_akamai_cookies, parse_set_coo
 
 logger = logging.getLogger(__name__)
 
-# Preflight URL - use Airbnb homepage which doesn't require auth but still returns Akamai cookies
-# Alternative: Could use /hosting if that works better
+# Preflight URL - use Airbnb homepage
+# Note: Airbnb may not set Akamai cookies on simple GET requests anymore.
+# The cookies might only be set via JavaScript or after certain user interactions.
 PREFLIGHT_URL = "https://www.airbnb.com/"
 
 
@@ -73,6 +74,21 @@ def get_fresh_akamai_cookies(user_agent: str, auth_cookie: str | None = None, ti
 
         response.raise_for_status()
 
+        # Log response details for debugging
+        logger.debug(f"[PREFLIGHT] Response status: {response.status_code}")
+        logger.debug(f"[PREFLIGHT] Response URL: {response.url}")
+
+        # Log ALL response headers to debug why we're not getting Set-Cookie
+        logger.debug("[PREFLIGHT] All response headers:")
+        try:
+            for header_name, header_value in response.headers.items():
+                # Truncate long header values
+                truncated_value = header_value[:100] + "..." if len(header_value) > 100 else header_value
+                logger.debug(f"  {header_name}: {truncated_value}")
+        except Exception as e:
+            logger.warning(f"[PREFLIGHT] Could not iterate response headers: {e}")
+            logger.debug(f"[PREFLIGHT] Headers type: {type(response.headers)}")
+
         # Extract cookies from Set-Cookie headers
         # curl_cffi returns headers as list of tuples
         set_cookies = parse_set_cookie_headers(response.headers)
@@ -83,6 +99,14 @@ def get_fresh_akamai_cookies(user_agent: str, auth_cookie: str | None = None, ti
         if not akamai_cookies:
             logger.warning("Preflight request succeeded but no Akamai cookies found in response")
             logger.warning(f"Set-Cookie headers received: {list(set_cookies.keys())}")
+            # Log the raw Set-Cookie values using get_list() which handles multiple Set-Cookie headers
+            try:
+                set_cookie_list = response.headers.get_list("set-cookie")
+                logger.warning(f"Number of Set-Cookie headers in response: {len(set_cookie_list)}")
+                if set_cookie_list:
+                    logger.debug(f"Set-Cookie values: {set_cookie_list}")
+            except Exception as e:
+                logger.debug(f"Could not get Set-Cookie list: {e}")
         else:
             logger.info(f"Preflight request successful, obtained {len(akamai_cookies)} Akamai cookies")
             # Log cookie names and truncated values for debugging (first 20 + last 20 chars)

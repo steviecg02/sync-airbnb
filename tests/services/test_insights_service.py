@@ -5,14 +5,20 @@ from sync_airbnb.models.account import Account
 from sync_airbnb.services import insights
 
 
+@patch("sync_airbnb.services.insights.sync_listings_processed_total")
+@patch("sync_airbnb.services.insights.sync_jobs_duration_seconds")
+@patch("sync_airbnb.services.insights.sync_jobs_active")
+@patch("sync_airbnb.services.insights.sync_jobs_total")
+@patch("sync_airbnb.services.insights.errors_total")
+@patch("sync_airbnb.services.insights.engine")
+@patch("sync_airbnb.services.insights.update_last_sync")
 @patch("sync_airbnb.db.writers.accounts.update_account_cookies")
-@patch("sync_airbnb.db.writers.accounts.update_last_sync")
 @patch("sync_airbnb.network.preflight.create_preflight_session")
 @patch("sync_airbnb.utils.cookie_utils.filter_auth_cookies_only")
 @patch("sync_airbnb.utils.cookie_utils.parse_cookie_string")
-@patch("sync_airbnb.db.insights.insert_list_of_metrics_rows")
-@patch("sync_airbnb.db.insights.insert_chart_query_rows")
-@patch("sync_airbnb.utils.date_window.get_poll_window")
+@patch("sync_airbnb.services.insights.insert_list_of_metrics_rows")
+@patch("sync_airbnb.services.insights.insert_chart_query_rows")
+@patch("sync_airbnb.services.insights.get_poll_window")
 @patch("sync_airbnb.services.insights.AirbnbSync")
 def test_run_insights_poller_happy_path(
     mock_airbnb_sync,
@@ -24,7 +30,21 @@ def test_run_insights_poller_happy_path(
     mock_create_preflight_session,
     mock_update_last_sync,
     mock_update_account_cookies,
+    mock_engine,
+    mock_errors_total,
+    mock_sync_jobs_total,
+    mock_sync_jobs_active,
+    mock_sync_jobs_duration_seconds,
+    mock_sync_listings_processed_total,
 ):
+    # Mock Prometheus metrics
+    mock_sync_jobs_total.labels.return_value.inc = MagicMock()
+    mock_sync_jobs_active.inc = MagicMock()
+    mock_sync_jobs_active.dec = MagicMock()
+    mock_sync_jobs_duration_seconds.observe = MagicMock()
+    mock_sync_listings_processed_total.labels.return_value.inc = MagicMock()
+    mock_errors_total.labels.return_value.inc = MagicMock()
+
     # Mock poll window
     mock_get_poll_window.return_value = (date(2025, 7, 1), date(2025, 7, 7))
 
@@ -50,9 +70,9 @@ def test_run_insights_poller_happy_path(
     mock_sync_instance = MagicMock()
     mock_sync_instance.fetch_listing_ids.return_value = {"999": "Test Listing"}
     mock_sync_instance.parse_all.return_value = {
-        "chart_query": [{"date": "2025-07-01", "listing_id": "999", "account_id": "test_account"}],
-        "chart_summary": [{"listing_id": "999", "account_id": "test_account"}],
-        "list_of_metrics": [{"date": "2025-07-01", "listing_id": "999", "account_id": "test_account"}],
+        "chart_query": [],  # Empty - insert function is mocked
+        "chart_summary": [],
+        "list_of_metrics": [],
     }
     mock_sync_instance._parsed_chunks.clear = MagicMock()
     mock_airbnb_sync.return_value = mock_sync_instance

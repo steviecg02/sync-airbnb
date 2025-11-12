@@ -23,13 +23,6 @@ AUTH_COOKIE_NAMES = {
     "rclu",  # Recently clicked listing unit
 }
 
-# Akamai Bot Manager cookies (ephemeral, obtained via preflight)
-AKAMAI_COOKIE_NAMES = {
-    "ak_bmsc",  # Akamai Bot Manager Session Cookie
-    "bm_sv",  # Bot Manager Sensor Value
-    "bm_sz",  # Bot Manager Size
-}
-
 
 def parse_cookie_string(cookie_string: str) -> dict[str, str]:
     """
@@ -78,71 +71,36 @@ def build_cookie_string(cookies: dict[str, str]) -> str:
     return "; ".join(f"{name}={value}" for name, value in cookies.items())
 
 
-def extract_auth_cookies(cookie_string: str) -> dict[str, str]:
+def filter_auth_cookies_only(cookies: dict[str, str]) -> dict[str, str]:
     """
-    Extract only auth cookies from a full cookie string.
+    Filter to only the 7 required auth cookies, removing bot detection and analytics cookies.
 
-    Filters out Akamai Bot Manager cookies and analytics cookies, keeping only
-    the persistent authentication cookies needed for subsequent requests.
+    This is used after sync to persist only the essential auth cookies to the database.
+    Bot detection cookies (ak_bmsc, bm_sv) are ephemeral and should be obtained fresh
+    each sync via preflight.
 
     Args:
-        cookie_string: Full cookie string from browser
+        cookies: Dictionary of all cookie name/value pairs
 
     Returns:
-        dict: Dictionary of auth cookie names to values
+        dict: Dictionary containing only the 7 auth cookies:
+            _airbed_session_id, _aaj, _aat, auth_jitney_session_id,
+            _user_attributes, hli, li
 
     Example:
-        >>> extract_auth_cookies("_airbed_session_id=abc; ak_bmsc=xyz; _ga=123")
+        >>> all_cookies = {'_airbed_session_id': 'abc', 'ak_bmsc': 'xyz', '_ga': '123'}
+        >>> filter_auth_cookies_only(all_cookies)
         {'_airbed_session_id': 'abc'}
     """
-    all_cookies = parse_cookie_string(cookie_string)
-    auth_cookies = {name: value for name, value in all_cookies.items() if name in AUTH_COOKIE_NAMES}
+    auth_cookies = {name: value for name, value in cookies.items() if name in AUTH_COOKIE_NAMES}
 
-    logger.debug(f"Extracted {len(auth_cookies)} auth cookies from {len(all_cookies)} total cookies")
+    discarded_count = len(cookies) - len(auth_cookies)
+    logger.info(f"[COOKIE_FILTER] Filtering {len(cookies)} cookies → {len(auth_cookies)} auth cookies only")
+    logger.info(f"[COOKIE_FILTER] Keeping: {list(auth_cookies.keys())}")
+    if discarded_count > 0:
+        logger.info(f"[COOKIE_FILTER] Discarding {discarded_count} non-auth cookies")
+
     return auth_cookies
-
-
-def extract_akamai_cookies(cookie_string: str) -> dict[str, str]:
-    """
-    Extract only Akamai Bot Manager cookies from a cookie string.
-
-    Args:
-        cookie_string: Cookie string from response
-
-    Returns:
-        dict: Dictionary of Akamai cookie names to values
-
-    Example:
-        >>> extract_akamai_cookies("ak_bmsc=xyz123; bm_sv=abc456; session=test")
-        {'ak_bmsc': 'xyz123', 'bm_sv': 'abc456'}
-    """
-    all_cookies = parse_cookie_string(cookie_string)
-    akamai_cookies = {name: value for name, value in all_cookies.items() if name in AKAMAI_COOKIE_NAMES}
-
-    logger.debug(f"Extracted {len(akamai_cookies)} Akamai cookies from {len(all_cookies)} total cookies")
-    return akamai_cookies
-
-
-def merge_cookies(auth_cookies: dict[str, str], akamai_cookies: dict[str, str]) -> str:
-    """
-    Merge auth cookies with fresh Akamai cookies into a single cookie string.
-
-    This is the core of the preflight pattern: combine stored auth cookies with
-    freshly obtained Akamai Bot Manager tokens.
-
-    Args:
-        auth_cookies: Persistent auth cookies from storage
-        akamai_cookies: Fresh Akamai cookies from preflight request
-
-    Returns:
-        str: Merged cookie string ready for API request
-
-    Example:
-        >>> merge_cookies({'session': 'abc'}, {'ak_bmsc': 'xyz'})
-        'session=abc; ak_bmsc=xyz'
-    """
-    merged = {**auth_cookies, **akamai_cookies}
-    return build_cookie_string(merged)
 
 
 def parse_set_cookie_headers(headers: Any) -> dict[str, str]:

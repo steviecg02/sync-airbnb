@@ -53,7 +53,8 @@ def _log_retry(details):
 def post_with_retry(
     url: str,
     json: dict,
-    headers: dict,
+    headers: dict | None = None,
+    session: curl_requests.Session | None = None,
     timeout: int = 10,
     debug: bool = False,
     context: str | None = None,
@@ -64,10 +65,15 @@ def post_with_retry(
     Uses curl-cffi with Chrome impersonation to mimic real browser TLS fingerprint.
     This helps avoid Akamai Bot Manager detection.
 
+    Supports two modes:
+    1. Session mode (preferred): Uses persistent Session with automatic cookie management
+    2. Headers mode (legacy): Uses headers dict with cookies as strings
+
     Args:
         url (str): Target API endpoint.
         json (dict): JSON body to send with the request.
-        headers (dict): HTTP headers to include.
+        headers (dict | None): HTTP headers to include (legacy mode). Optional if session provided.
+        session (Session | None): curl_cffi Session object (preferred mode). Optional if headers provided.
         timeout (int, optional): Timeout in seconds. Defaults to 10.
         debug (bool, optional): If True, logs request/response. Defaults to False.
         context (Optional[str], optional): Debug context for logging. Defaults to None.
@@ -86,10 +92,24 @@ def post_with_retry(
     logger.info(f"[API_CALL] {context or 'Unknown'}")
 
     try:
-        # Use curl-cffi with Chrome 110 impersonation for TLS fingerprinting
-        res = curl_requests.post(
-            url, json=json, headers=headers, timeout=timeout, impersonate="chrome110"  # Mimic Chrome's TLS fingerprint
-        )
+        # Use Session if provided (preferred), otherwise use headers dict (legacy)
+        if session:
+            logger.debug("[HTTP_CLIENT] Making POST using Session")
+            res = session.post(url, json=json, timeout=timeout)
+
+            # Log Set-Cookie headers if received (Session auto-captures them)
+            try:
+                set_cookie_list = res.headers.get_list("set-cookie")
+                if set_cookie_list:
+                    cookie_names = [cookie.split("=")[0] for cookie in set_cookie_list]
+                    logger.debug(f"[HTTP_CLIENT] Received Set-Cookie headers: {cookie_names}")
+            except Exception:
+                pass  # Ignore parse errors
+        else:
+            # Legacy mode: use headers dict
+            logger.debug("[HTTP_CLIENT] Making POST using headers dict (legacy)")
+            res = curl_requests.post(url, json=json, headers=headers, timeout=timeout, impersonate="chrome110")
+
         duration = time.time() - start_time
 
         # Track request metrics

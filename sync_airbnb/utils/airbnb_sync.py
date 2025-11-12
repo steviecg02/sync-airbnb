@@ -3,6 +3,8 @@ import logging
 from datetime import date, timedelta
 from typing import Any
 
+from curl_cffi import requests as curl_requests
+
 from sync_airbnb.flatteners.insights import flatten_chart_query, flatten_list_of_metrics_query
 from sync_airbnb.flatteners.listings import flatten_listing_ids
 from sync_airbnb.network.http_client import post_with_retry
@@ -33,16 +35,24 @@ class AirbnbSync:
 
     MAX_METRIC_OFFSET_DAYS = 182
 
-    def __init__(self, scrape_day: date, debug: bool = False, headers: dict[str, str] | None = None):
+    def __init__(
+        self,
+        scrape_day: date,
+        debug: bool = False,
+        headers: dict[str, str] | None = None,
+        session: curl_requests.Session | None = None,
+    ):
         """
         Args:
             scrape_day (date): Anchor date for calculating relative offsets in GraphQL payloads.
             debug (bool): If True, logs full payloads and responses.
-            headers (dict, optional): Custom HTTP headers. If None, uses default HEADERS from env.
+            headers (dict, optional): Custom HTTP headers (legacy mode). If None, uses default HEADERS from env.
+            session (Session, optional): curl_cffi Session object (preferred mode). If provided, headers are ignored.
         """
         self.scrape_day = scrape_day
         self.debug = debug
         self.headers = headers if headers is not None else HEADERS
+        self.session = session
         self._parsed_chunks: list[dict] = []
 
     def get_url(self, query_type: str) -> str:
@@ -146,7 +156,11 @@ class AirbnbSync:
                 f"{metric_type}|{metric_name}|{start_date}_to_{end_date}|{window_days}d"
             )
 
-        response = post_with_retry(url=url, headers=self.headers, json=payload, context=context)
+        # Use Session if available (preferred), otherwise use headers dict (legacy)
+        if self.session:
+            response = post_with_retry(url=url, session=self.session, json=payload, context=context)
+        else:
+            response = post_with_retry(url=url, headers=self.headers, json=payload, context=context)
 
         if self.debug:
             logger.debug(f"[{query_type}] Response:\n%s", json.dumps(response, indent=2))

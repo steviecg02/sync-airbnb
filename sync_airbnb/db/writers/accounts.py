@@ -78,6 +78,40 @@ def update_account(engine: Engine, account_id: str, updates: AccountUpdate) -> A
             return None
 
 
+def update_account_cookies(engine: Engine, account_id: str, cookie_string: str) -> None:
+    """
+    Update only the airbnb_cookie field for an account.
+
+    Called after each sync to persist evolved cookies from Session.
+    Only stores auth cookies (bot detection cookies are ephemeral and obtained fresh each run).
+
+    Args:
+        engine: SQLAlchemy engine
+        account_id: Account ID to update
+        cookie_string: New cookie string containing only auth cookies
+
+    Example:
+        >>> update_account_cookies(engine, "310316675", "_airbed_session_id=abc; _aaj=xyz")
+    """
+    logger.info(f"[DB] Updating cookies for account {account_id}")
+    logger.info(f"[DB] Cookie string length: {len(cookie_string)} chars")
+
+    with engine.begin() as conn:
+        from sqlalchemy import update as sa_update
+
+        stmt = (
+            sa_update(Account)
+            .where(Account.account_id == account_id)
+            .values(airbnb_cookie=cookie_string, updated_at=utc_now())
+        )
+        result = conn.execute(stmt)
+
+        if result.rowcount == 0:
+            logger.warning(f"[DB] Account {account_id} not found for cookie update")
+        else:
+            logger.info(f"[DB] Successfully updated cookies for account {account_id}")
+
+
 def update_last_sync(engine: Engine, account_id: str) -> None:
     """Update the last_sync_at timestamp for an account."""
     if config.INSIGHTS_DRY_RUN:

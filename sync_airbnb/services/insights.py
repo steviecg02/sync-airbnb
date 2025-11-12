@@ -18,7 +18,7 @@ from sync_airbnb.metrics import (
     sync_listings_processed_total,
 )
 from sync_airbnb.models.account import Account
-from sync_airbnb.network.http_headers import build_headers
+from sync_airbnb.network.http_client import AirbnbAuthError
 from sync_airbnb.utils.airbnb_sync import AirbnbSync
 from sync_airbnb.utils.date_window import get_poll_window
 
@@ -87,47 +87,34 @@ def run_insights_poller(
     window_start, window_end = get_poll_window(is_first_run=is_first_run, today=scrape_day)
     logger.info(f"Sync window: {window_start} to {window_end} (first_run={is_first_run}, force_full={force_full})")
 
-    # Step 1: Get fresh Akamai Bot Manager cookies via preflight
-    logger.info("[PREFLIGHT] Requesting fresh Akamai cookies from Airbnb homepage...")
-    from sync_airbnb.network.preflight import get_fresh_akamai_cookies
-    from sync_airbnb.utils.cookie_utils import extract_auth_cookies, merge_cookies, parse_cookie_string
+    # Step 1: Load auth cookies from DB
+    logger.info("[COOKIE_ROTATION] Loading auth cookies from database")
+    from sync_airbnb.utils.cookie_utils import build_cookie_string, filter_auth_cookies_only, parse_cookie_string
+
+    all_stored_cookies = parse_cookie_string(account.airbnb_cookie)
+    auth_cookies = filter_auth_cookies_only(all_stored_cookies)
+    logger.info(f"[COOKIE_ROTATION] Loaded {len(auth_cookies)} auth cookies: {list(auth_cookies.keys())}")
+
+    # Step 2: Create preflight session
+    logger.info("[COOKIE_ROTATION] Creating preflight session")
+    from sync_airbnb.network.preflight import create_preflight_session
 
     try:
-        # Extract auth cookies from stored cookie string (these are long-lived)
-        auth_cookies = extract_auth_cookies(account.airbnb_cookie)
-        logger.info(f"[COOKIES] Using {len(auth_cookies)} auth cookies: {list(auth_cookies.keys())}")
-
-        # Get fresh Akamai cookies (these expire quickly and trigger bot detection if stale)
-        fresh_akamai_cookies = get_fresh_akamai_cookies(
-            user_agent=account.user_agent,
-            auth_cookie=account.airbnb_cookie,
-        )
-        logger.info(
-            f"[PREFLIGHT] Received {len(fresh_akamai_cookies)} fresh Akamai cookies: {list(fresh_akamai_cookies.keys())}"
-        )
-
-        # Merge auth + fresh Akamai cookies
-        merged_cookie_string = merge_cookies(auth_cookies, fresh_akamai_cookies)
-        merged_cookies = parse_cookie_string(merged_cookie_string)
-        logger.info(
-            f"[COOKIES] Merged cookie string has {len(merged_cookies)} total cookies "
-            f"(auth: {len(auth_cookies)}, akamai: {len(fresh_akamai_cookies)})"
-        )
-
+        session = create_preflight_session(user_agent=account.user_agent, auth_cookies=auth_cookies, timeout=30)
+        logger.info("[COOKIE_ROTATION] Preflight successful, session ready")
+    except AirbnbAuthError as e:
+        logger.error(f"[COOKIE_ROTATION] Authentication failed: {e}")
+        errors_total.labels(error_type="auth_error").inc()
+        sync_jobs_active.dec()
+        raise
     except Exception as e:
-        logger.error(f"[PREFLIGHT] Failed to get fresh Akamai cookies: {e}")
-        logger.warning("[PREFLIGHT] Continuing with stored cookies (may fail with auth errors)")
-        merged_cookie_string = account.airbnb_cookie
+        logger.error(f"[COOKIE_ROTATION] Preflight failed: {e}", exc_info=True)
+        errors_total.labels(error_type="preflight_error").inc()
+        sync_jobs_active.dec()
+        raise
 
-    # Build headers from account credentials with merged cookies
-    # Note: x_airbnb_client_trace_id is auto-generated in build_headers()
-    headers = build_headers(
-        airbnb_cookie=merged_cookie_string,
-        x_client_version=account.x_client_version,
-        user_agent=account.user_agent,
-    )
-
-    poller = AirbnbSync(scrape_day=scrape_day, debug=DEBUG, headers=headers)
+    # Step 3: Create poller with Session (not headers dict)
+    poller = AirbnbSync(scrape_day=scrape_day, debug=DEBUG, session=session)
     listings = poller.fetch_listing_ids()
 
     if not listings:
@@ -178,8 +165,6 @@ def run_insights_poller(
 
         except Exception as e:
             # Check if this is an auth failure - if so, stop immediately
-            from sync_airbnb.network.http_client import AirbnbAuthError
-
             if isinstance(e, AirbnbAuthError):
                 logger.error(
                     f"[AUTH_FAILURE] Authentication failed for account {account.account_id}. "
@@ -226,6 +211,40 @@ def run_insights_poller(
         logger.warning(f"Errors occurred in {len(results['errors'])} listings:")
         for error in results["errors"]:
             logger.warning(f"  - {error['listing_id']} ({error['listing_name']}): {error['error_type']}")
+
+    # Step 4: Extract evolved cookies from Session after all requests
+    logger.info("[COOKIE_ROTATION] Extracting evolved cookies from session")
+    evolved_cookies = {}
+    for name, value in session.cookies.items():
+        evolved_cookies[name] = value
+
+    logger.info(f"[COOKIE_ROTATION] Session has {len(evolved_cookies)} total cookies after sync")
+
+    # Step 5: Filter to only auth cookies (discard bot/analytics)
+    auth_cookies_only = filter_auth_cookies_only(evolved_cookies)
+    logger.info(f"[COOKIE_ROTATION] Filtered to {len(auth_cookies_only)} auth cookies for storage")
+
+    # Step 6: Compare with initial cookies to see what changed
+    changed_cookies = []
+    for name, new_value in auth_cookies_only.items():
+        if name not in auth_cookies:
+            changed_cookies.append(f"{name} (NEW)")
+        elif auth_cookies[name] != new_value:
+            changed_cookies.append(f"{name} (UPDATED)")
+
+    if changed_cookies:
+        logger.info(f"[COOKIE_ROTATION] Cookies evolved: {changed_cookies}")
+    else:
+        logger.info("[COOKIE_ROTATION] No cookies changed (values match initial)")
+
+    # Step 7: Save evolved auth cookies to DB
+    cookie_string = build_cookie_string(auth_cookies_only)
+    logger.info(f"[COOKIE_ROTATION] Updating DB with evolved cookies ({len(cookie_string)} chars)")
+
+    from sync_airbnb.db.writers.accounts import update_account_cookies
+
+    update_account_cookies(engine, account.account_id, cookie_string)
+    logger.info("[COOKIE_ROTATION] Cookie rotation complete")
 
     # Update last_sync_at timestamp (even if some listings failed)
     # This ensures we don't get stuck retrying the same window forever

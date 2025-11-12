@@ -13,7 +13,7 @@ from sync_airbnb.services import insights
 @patch("sync_airbnb.db.insights.insert_list_of_metrics_rows")
 @patch("sync_airbnb.db.insights.insert_chart_query_rows")
 @patch("sync_airbnb.utils.date_window.get_poll_window")
-@patch("sync_airbnb.utils.airbnb_sync.AirbnbSync")
+@patch("sync_airbnb.services.insights.AirbnbSync")
 def test_run_insights_poller_happy_path(
     mock_airbnb_sync,
     mock_get_poll_window,

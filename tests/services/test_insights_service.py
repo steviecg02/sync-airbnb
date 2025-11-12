@@ -38,6 +38,12 @@ def test_run_insights_poller_happy_path(
         ("_airbed_session_id", "abc"),
         ("_aaj", "xyz_new"),  # Changed value
     ]
+    # Mock session.post() to return valid GraphQL responses
+    mock_post_response = MagicMock()
+    mock_post_response.status_code = 200
+    mock_post_response.json.return_value = {"data": {}}
+    mock_post_response.headers.get_list.return_value = []
+    mock_session.post.return_value = mock_post_response
     mock_create_preflight_session.return_value = mock_session
 
     # Mock listings

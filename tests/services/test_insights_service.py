@@ -5,15 +5,15 @@ from sync_airbnb.models.account import Account
 from sync_airbnb.services import insights
 
 
-@patch("sync_airbnb.services.insights.update_account_cookies")
-@patch("sync_airbnb.services.insights.update_last_sync")
-@patch("sync_airbnb.services.insights.create_preflight_session")
-@patch("sync_airbnb.services.insights.filter_auth_cookies_only")
-@patch("sync_airbnb.services.insights.parse_cookie_string")
-@patch("sync_airbnb.services.insights.insert_list_of_metrics_rows")
-@patch("sync_airbnb.services.insights.insert_chart_query_rows")
-@patch("sync_airbnb.services.insights.get_poll_window")
-@patch("sync_airbnb.services.insights.AirbnbSync")
+@patch("sync_airbnb.db.writers.accounts.update_account_cookies")
+@patch("sync_airbnb.db.writers.accounts.update_last_sync")
+@patch("sync_airbnb.network.preflight.create_preflight_session")
+@patch("sync_airbnb.utils.cookie_utils.filter_auth_cookies_only")
+@patch("sync_airbnb.utils.cookie_utils.parse_cookie_string")
+@patch("sync_airbnb.db.insights.insert_list_of_metrics_rows")
+@patch("sync_airbnb.db.insights.insert_chart_query_rows")
+@patch("sync_airbnb.utils.date_window.get_poll_window")
+@patch("sync_airbnb.utils.airbnb_sync.AirbnbSync")
 def test_run_insights_poller_happy_path(
     mock_airbnb_sync,
     mock_get_poll_window,

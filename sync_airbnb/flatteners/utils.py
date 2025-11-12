@@ -25,8 +25,9 @@ def get_first_component(response: dict) -> dict:
 
     # Fallback: check if getPerformanceComponents is explicitly set to null (not just missing)
     # Only treat as auth error if "porygon" key exists and getPerformanceComponents is explicitly None
-    if not auth_error and "porygon" in response.get("data", {}):
-        porygon = response["data"]["porygon"]
+    data = response.get("data")
+    if not auth_error and data is not None and "porygon" in data:
+        porygon = data["porygon"]
         if "getPerformanceComponents" in porygon and porygon["getPerformanceComponents"] is None:
             auth_error = True
 

@@ -113,8 +113,17 @@ def run_insights_poller(
         sync_jobs_active.dec()
         raise
 
-    # Step 3: Create poller with Session (not headers dict)
-    poller = AirbnbSync(scrape_day=scrape_day, debug=DEBUG, session=session)
+    # Build Airbnb GraphQL API headers from account credentials
+    from sync_airbnb.network.http_headers import build_headers
+
+    api_headers = build_headers(
+        airbnb_cookie="",  # Empty - session manages cookies
+        x_client_version=account.x_client_version,
+        user_agent=account.user_agent,
+    )
+
+    # Step 3: Create poller with Session + API headers
+    poller = AirbnbSync(scrape_day=scrape_day, debug=DEBUG, session=session, headers=api_headers)
     listings = poller.fetch_listing_ids()
 
     if not listings:

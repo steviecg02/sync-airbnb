@@ -158,7 +158,9 @@ class AirbnbSync:
 
         # Use Session if available (preferred), otherwise use headers dict (legacy)
         if self.session:
-            response = post_with_retry(url=url, session=self.session, json=payload, context=context)
+            response = post_with_retry(
+                url=url, session=self.session, headers=self.headers, json=payload, context=context
+            )
         else:
             response = post_with_retry(url=url, headers=self.headers, json=payload, context=context)
 

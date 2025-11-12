@@ -95,7 +95,7 @@ def post_with_retry(
         # Use Session if provided (preferred), otherwise use headers dict (legacy)
         if session:
             logger.debug("[HTTP_CLIENT] Making POST using Session")
-            res = session.post(url, json=json, timeout=timeout)
+            res = session.post(url, json=json, headers=headers, timeout=timeout)
 
             # Log Set-Cookie headers if received (Session auto-captures them)
             try:

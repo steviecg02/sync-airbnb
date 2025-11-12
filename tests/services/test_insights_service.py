@@ -5,8 +5,11 @@ from sync_airbnb.models.account import Account
 from sync_airbnb.services import insights
 
 
+@patch("sync_airbnb.services.insights.update_account_cookies")
 @patch("sync_airbnb.services.insights.update_last_sync")
-@patch("sync_airbnb.services.insights.build_headers")
+@patch("sync_airbnb.services.insights.create_preflight_session")
+@patch("sync_airbnb.services.insights.filter_auth_cookies_only")
+@patch("sync_airbnb.services.insights.parse_cookie_string")
 @patch("sync_airbnb.services.insights.insert_list_of_metrics_rows")
 @patch("sync_airbnb.services.insights.insert_chart_query_rows")
 @patch("sync_airbnb.services.insights.get_poll_window")
@@ -16,14 +19,26 @@ def test_run_insights_poller_happy_path(
     mock_get_poll_window,
     mock_insert_chart_query_rows,
     mock_insert_list_of_metrics_rows,
-    mock_build_headers,
+    mock_parse_cookie_string,
+    mock_filter_auth_cookies_only,
+    mock_create_preflight_session,
     mock_update_last_sync,
+    mock_update_account_cookies,
 ):
     # Mock poll window
     mock_get_poll_window.return_value = (date(2025, 7, 1), date(2025, 7, 7))
 
-    # Mock headers
-    mock_build_headers.return_value = {"X-API-Key": "test"}
+    # Mock cookie parsing
+    mock_parse_cookie_string.return_value = {"_airbed_session_id": "abc", "_aaj": "xyz"}
+    mock_filter_auth_cookies_only.side_effect = lambda x: x  # Return same dict
+
+    # Mock preflight session
+    mock_session = MagicMock()
+    mock_session.cookies.items.return_value = [
+        ("_airbed_session_id", "abc"),
+        ("_aaj", "xyz_new"),  # Changed value
+    ]
+    mock_create_preflight_session.return_value = mock_session
 
     # Mock listings
     mock_sync_instance = MagicMock()
@@ -51,7 +66,8 @@ def test_run_insights_poller_happy_path(
 
     # Assertions
     mock_get_poll_window.assert_called_once_with(is_first_run=True, today=date(2025, 7, 11))
-    mock_build_headers.assert_called_once()
+    mock_parse_cookie_string.assert_called_once()
+    mock_create_preflight_session.assert_called_once()
     mock_airbnb_sync.assert_called_once()
     mock_sync_instance.fetch_listing_ids.assert_called_once()
     mock_sync_instance.poll_range_and_flatten.assert_any_call(
@@ -79,5 +95,6 @@ def test_run_insights_poller_happy_path(
     # chart_summary is skipped (not called)
     mock_insert_list_of_metrics_rows.assert_called_once()
 
-    # Verify last_sync was updated
+    # Verify last_sync and cookies were updated
     mock_update_last_sync.assert_called_once()
+    mock_update_account_cookies.assert_called_once()

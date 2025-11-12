@@ -95,9 +95,11 @@ def test_create_preflight_session_http_error(mock_session_class):
 @patch("sync_airbnb.network.preflight.curl_requests.Session")
 def test_create_preflight_session_loads_cookies(mock_session_class):
     """Test that auth cookies are loaded into session."""
-    # Setup mock
+    # Setup mock with iterable cookies that have len()
     mock_session = Mock()
-    mock_session.cookies = Mock()
+    mock_cookies = MagicMock()
+    mock_cookies.__len__ = Mock(return_value=5)  # After loading 3 auth cookies + 2 bot cookies
+    mock_session.cookies = mock_cookies
     mock_session_class.return_value = mock_session
 
     # Mock response

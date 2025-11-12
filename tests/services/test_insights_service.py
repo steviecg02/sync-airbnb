@@ -50,9 +50,9 @@ def test_run_insights_poller_happy_path(
     mock_sync_instance = MagicMock()
     mock_sync_instance.fetch_listing_ids.return_value = {"999": "Test Listing"}
     mock_sync_instance.parse_all.return_value = {
-        "chart_query": [{"test": "chart"}],
-        "chart_summary": [{"test": "summary"}],
-        "list_of_metrics": [{"test": "metrics"}],
+        "chart_query": [{"date": "2025-07-01", "listing_id": "999", "account_id": "test_account"}],
+        "chart_summary": [{"listing_id": "999", "account_id": "test_account"}],
+        "list_of_metrics": [{"date": "2025-07-01", "listing_id": "999", "account_id": "test_account"}],
     }
     mock_sync_instance._parsed_chunks.clear = MagicMock()
     mock_airbnb_sync.return_value = mock_sync_instance

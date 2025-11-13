@@ -84,7 +84,7 @@ format:
 clean:
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -exec rm -r {} + 2>/dev/null || true
-	rm -rf .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage
+	rm -rf .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage venv
 
 # Start FastAPI dev server with hot reload
 run-api:

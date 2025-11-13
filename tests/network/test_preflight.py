@@ -16,10 +16,11 @@ def test_create_preflight_session_success(mock_session_class):
     mock_session.cookies = MagicMock()
     mock_session_class.return_value = mock_session
 
-    # Mock response
+    # Mock response - redirected to /performance/ (live session)
     mock_response = Mock()
     mock_response.status_code = 200
-    mock_response.url = "https://www.airbnb.com/hosting/insights"
+    mock_response.url = "https://www.airbnb.com/performance/quality/overall"
+    mock_response.text = "<html>Performance Dashboard</html>"
     mock_response.headers.get_list.return_value = [
         "ak_bmsc=xyz; Path=/",
         "bm_sv=abc; Path=/",
@@ -102,10 +103,11 @@ def test_create_preflight_session_loads_cookies(mock_session_class):
     mock_session.cookies = mock_cookies
     mock_session_class.return_value = mock_session
 
-    # Mock response
+    # Mock response - redirected to /performance/ (live session)
     mock_response = Mock()
     mock_response.status_code = 200
-    mock_response.url = "https://www.airbnb.com/hosting/insights"
+    mock_response.url = "https://www.airbnb.com/performance/quality/overall"
+    mock_response.text = "<html>Performance Dashboard</html>"
     mock_response.headers.get_list.return_value = []
     mock_session.get.return_value = mock_response
 

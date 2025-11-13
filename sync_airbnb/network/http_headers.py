@@ -79,7 +79,6 @@ def build_headers(
         # User Agent (must match Sec-CH-UA)
         "User-Agent": user_agent,
         # Airbnb-specific headers
-        "Cookie": airbnb_cookie,
         "X-Airbnb-API-Key": airbnb_api_key,
         "X-Airbnb-Client-Trace-Id": x_airbnb_client_trace_id,
         "X-Airbnb-GraphQL-Platform": "web",
@@ -92,6 +91,11 @@ def build_headers(
         "X-CSRF-Without-Token": "1",
         "X-Niobe-Short-Circuited": "true",
     }
+
+    # Only add Cookie header for legacy mode (non-Session requests)
+    # When using curl_cffi Session, let Session manage cookies automatically
+    if airbnb_cookie:
+        headers["Cookie"] = airbnb_cookie
 
     # Add referer if provided (specific to the API endpoint being called)
     if referer:

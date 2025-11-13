@@ -117,6 +117,7 @@ def sync_insights_job():
 
     except Exception as e:
         logger.error(f"Error in scheduled sync for account {config.ACCOUNT_ID}: {e}", exc_info=True)
+        raise  # Re-raise so APScheduler reports job as failed
 
 
 def setup_scheduler(scheduler: BackgroundScheduler):

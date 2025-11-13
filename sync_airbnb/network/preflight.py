@@ -101,12 +101,25 @@ def create_preflight_session(
         # Log response details
         logger.info(f"[PREFLIGHT] Response: {response.status_code} from {response.url}")
 
-        # Check if redirected to login (session dead)
-        if "login" in response.url.lower() or "authenticate" in response.url.lower():
+        url = response.url.lower()
+
+        # Check 1: Redirected to login page (session dead)
+        if "login" in url or "authenticate" in url:
             logger.error(f"[PREFLIGHT] SESSION DEAD - Redirected to login at {response.url}")
             raise AirbnbAuthError(f"Session expired, redirected to login: {response.url}")
 
-        logger.info("[PREFLIGHT] Session valid (not redirected to login)")
+        # Check 2: Stayed on /hosting/insights (dead session doesn't redirect)
+        # Live sessions redirect to /performance/quality/overall
+        if "/hosting/insights" in url and "/performance/" not in url:
+            logger.error("[PREFLIGHT] SESSION DEAD - Still on /hosting/insights (expected redirect to /performance/)")
+            raise AirbnbAuthError("Session expired: stuck on /hosting/insights, expected redirect to /performance/")
+
+        # Check 3: Content check for logged-out state
+        if "you don't have any listings yet" in response.text.lower():
+            logger.error("[PREFLIGHT] SESSION DEAD - Response shows 'no listings' (logged out or wrong host)")
+            raise AirbnbAuthError("Session invalid: response shows no listings page")
+
+        logger.info("[PREFLIGHT] Session valid (redirected to /performance/ successfully)")
 
         # Log Set-Cookie headers received
         try:
